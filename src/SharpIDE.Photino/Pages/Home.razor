@@ -1,5 +1,9 @@
 ﻿@page "/"
 @using Microsoft.Build.Construction
+@using Microsoft.Build.Evaluation
+@using Microsoft.Build.Execution
+@using Microsoft.Build.Globbing
+@using Microsoft.Build.Globbing.Extensions
 @using SharpIDE.Application.Features.SolutionDiscovery
 
 <MudText>Welcome to a new Photino Blazor app!</MudText>
@@ -21,6 +25,7 @@
 
 	private SolutionFile _solutionFile = null!;
 	private List<ProjectInSolution> _rootNodes = [];
+	private Dictionary<string, List<Folder>> _folders = new();
 
 	private RenderFragment GetProjectFragment(ProjectInSolution project) =>
 		@<text>
@@ -29,7 +34,17 @@
 				 {
 					 @GetProjectFragment(child)
 				 }
+				 @GetFolderFragment(project)
 			 </MudTreeViewItem>
+		 </text>;
+
+	private RenderFragment GetFolderFragment(ProjectInSolution project) =>
+		@<text>
+			 @foreach (var folder in _folders.GetValueOrDefault(project.ProjectGuid, []))
+			 {
+				 <MudTreeViewItem Value="folder" Text="@folder.Name">
+				 </MudTreeViewItem>
+			 }
 		 </text>;
 
 	protected override async Task OnInitializedAsync()
@@ -39,7 +54,8 @@
 		_solutionFile = solutionFile;
 		var rootNodes = solutionFile.ProjectsByGuid.Values.Where(p => p.ParentProjectGuid == null).OrderBy(s => s.ProjectName).ToList();
 		_rootNodes = rootNodes;
-		Console.WriteLine();
+
+
 	}
 
 }
