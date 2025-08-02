@@ -67,9 +67,7 @@
 				 {
 					 @foreach (var folder in project.Folders)
 					 {
-						 <MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Default" @bind-Expanded="folder.Expanded" Text="@folder.Name" Value="@folder">
 							 @GetFolderFragment(folder)
-						 </MudTreeViewItem>
 					 }
 					 @foreach (var file in project.Files)
 					 {
@@ -81,20 +79,21 @@
 
 	private RenderFragment GetFolderFragment(SharpIdeFolder folder) =>
 		@<text>
-				 @foreach (var subFolder in folder.Folders)
+			 <MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Default" @bind-Expanded="folder.Expanded" Text="@folder.Name" Value="@folder">
+				 @if (folder.Expanded)
 				 {
-					 <MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Default" @bind-Expanded="subFolder.Expanded" Text="@subFolder.Name" Value="@subFolder">
-						 @if (subFolder.Expanded)
-						 {
-							 @GetFolderFragment(subFolder)
-						 }
-					 </MudTreeViewItem>
+					 @foreach (var subFolder in folder.Folders)
+					 {
+						 @GetFolderFragment(subFolder)
+					 }
+					 @foreach (var file in folder.Files)
+					 {
+						 @GetFileFragment(file)
+					 }
 				 }
-				 @foreach (var file in folder.Files)
-				 {
-					 @GetFileFragment(file)
-				 }
-		</text>;
+			 </MudTreeViewItem>
+
+	</text>;
 
 	private RenderFragment GetFileFragment(SharpIdeFile file) =>
 		@<text>
