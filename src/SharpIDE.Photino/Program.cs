@@ -60,9 +60,9 @@ public class Program
 			app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
 		};
 
-		var instance = MSBuildLocator.QueryVisualStudioInstances().OrderByDescending(instance => instance.Version).First();
+		//var instance = MSBuildLocator.QueryVisualStudioInstances().OrderByDescending(instance => instance.Version).First();
 		//MSBuildLocator.RegisterInstance(instance);
-		MSBuildLocator.RegisterDefaults();
+		var instance = MSBuildLocator.RegisterDefaults();
 
 		app.Run();
 	}
