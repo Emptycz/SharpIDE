@@ -22,11 +22,7 @@ public static class VsPersistenceMapper
 			Folders = intermediateModel.SolutionFolders.Select(s => new SharpIdeSolutionFolder
 			{
 				Name = s.Model.Name,
-				Files = s.Files.Select(x => new SharpIdeFile
-				{
-					Path = x.FullPath,
-					Name = x.Name
-				}).ToList(),
+				Files = s.Files.Select(GetSharpIdeFile).ToList(),
 				Folders = s.Folders.Select(GetSharpIdeSolutionFolder).ToList(),
 				Projects = s.Projects.Select(GetSharpIdeProjectModel).ToList()
 			}).ToList(),
@@ -48,12 +44,14 @@ public static class VsPersistenceMapper
 	private static SharpIdeSolutionFolder GetSharpIdeSolutionFolder(IntermediateSlnFolderModel folderModel) => new SharpIdeSolutionFolder()
 	{
 		Name = folderModel.Model.Name,
-		Files = folderModel.Files.Select(x => new SharpIdeFile
-		{
-			Path = x.FullPath,
-			Name = x.Name
-		}).ToList(),
+		Files = folderModel.Files.Select(GetSharpIdeFile).ToList(),
 		Folders = folderModel.Folders.Select(GetSharpIdeSolutionFolder).ToList(),
 		Projects = folderModel.Projects.Select(GetSharpIdeProjectModel).ToList()
+	};
+
+	private static SharpIdeFile GetSharpIdeFile(IntermediateSlnFolderFileModel fileModel) => new SharpIdeFile
+	{
+		Path = fileModel.FullPath,
+		Name = fileModel.Name
 	};
 }
