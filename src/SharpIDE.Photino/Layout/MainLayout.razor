@@ -31,7 +31,7 @@
 	<MudDrawer @bind-Open="@_drawerOpen" Width="400px" ClipMode="DrawerClipMode.Always">
 		@if (_solutionFilePath is not null)
 		{
-			<SolutionExplorer @bind-SelectedFile="@_selectedFile" SolutionModel="@_solutionModel" SolutionFilePath="@_solutionFilePath"/>
+			<SolutionExplorer @bind-SelectedFile="@_selectedFile" SolutionModel="@_solutionModel"/>
 		}
 		@* <NavMenu/> *@
 	</MudDrawer>
