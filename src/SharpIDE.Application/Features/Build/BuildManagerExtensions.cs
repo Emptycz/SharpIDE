@@ -4,17 +4,39 @@ namespace SharpIDE.Application.Features.Build;
 
 public static class BuildManagerExtensions
 {
-	public static async Task<BuildResult> BuildAsync(this BuildManager buildManager, BuildParameters buildParameters, BuildRequestData buildRequest)
+	/// <summary>
+	/// Convenience method. Submits a lone build request and returns a Task that will complete when results are available.
+	/// </summary>
+	/// <exception cref="InvalidOperationException">Thrown if a build is already in progress.</exception>
+	public static async Task<BuildResult> BuildAsync(this BuildManager buildManager, BuildParameters parameters, BuildRequestData requestData)
 	{
-		var buildCompleteTcs = new TaskCompletionSource<BuildResult>();
-		buildManager.BeginBuild(buildParameters);
-		var buildSubmission = buildManager.PendBuildRequest(buildRequest);
-		buildSubmission.ExecuteAsync(submission =>
+		BuildResult result;
+		buildManager.BeginBuild(parameters);
+		try
 		{
-			buildCompleteTcs.SetResult(submission.BuildResult!);
-		}, null);
-		var buildResult = await buildCompleteTcs.Task.ConfigureAwait(false);
-		buildManager.EndBuild();
-		return buildResult;
+			var tcs = new TaskCompletionSource<BuildResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+			try
+			{
+				var buildSubmission = buildManager.PendBuildRequest(requestData);
+				buildSubmission.ExecuteAsync(sub =>
+				{
+					var buildResult = sub.BuildResult!;
+
+					tcs.SetResult(buildResult);
+				}, null);
+			}
+			catch (Exception ex)
+			{
+				tcs.SetException(ex);
+			}
+
+			result = await tcs.Task.ConfigureAwait(false);
+		}
+		finally
+		{
+			buildManager.EndBuild();
+		}
+		return result;
 	}
 }
