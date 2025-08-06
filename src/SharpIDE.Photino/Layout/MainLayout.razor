@@ -8,7 +8,7 @@
 @inject BuildService BuildService
 @inject AppState AppState
 
-<MudLayout>
+<MudLayout Style="height: 100%">
 	<MudAppBar Dense="true" Gutters="false" Class="px-2">
 		<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
 			<MudButton OnClick="@DrawerToggle" Style="min-width: 20px;">
@@ -40,21 +40,27 @@
 			</MudButton>
 		</MudStack>
 	</MudAppBar>
-	<MudDrawer @bind-Open="@_drawerOpen" Width="400px" ClipMode="DrawerClipMode.Always">
-		@if (_solutionFilePath is not null)
-		{
-			<SolutionExplorer @bind-SelectedFile="@_selectedFile" SolutionModel="@_solutionModel"/>
-		}
-		@* <NavMenu/> *@
-	</MudDrawer>
-	<MudMainContent>
-		<MudContainer MaxWidth="MaxWidth.False" Class="mt-2">
-			@* @Body *@
-			@if (_solutionFilePath is not null)
-			{
-				<CodeViewer SelectedFile="@_selectedFile" />
-			}
-		</MudContainer>
+
+	<MudMainContent Style="height: 100%">
+		<MudPaper Height="100%" Class="" Style="overflow:hidden; position:relative;">
+			<MudDrawerContainer Style="height: 100%" Class="mud-height-full">
+				<MudDrawer @bind-Open="@_drawerOpen" Style="height: 100%" Width="400px" Fixed="false" Elevation="0" Variant="@DrawerVariant.Persistent">
+					@if (_solutionFilePath is not null)
+					{
+						<SolutionExplorer @bind-SelectedFile="@_selectedFile" SolutionModel="@_solutionModel"/>
+					}
+				</MudDrawer>
+				<div class="d-flex justify-center align-center mud-height-full">
+					<MudContainer MaxWidth="MaxWidth.False" Class="mt-2">
+						@* @Body *@
+						@if (_solutionFilePath is not null)
+						{
+							<CodeViewer SelectedFile="@_selectedFile" />
+						}
+					</MudContainer>
+				</div>
+			</MudDrawerContainer>
+		</MudPaper>
 	</MudMainContent>
 	<MudDrawer @bind-Open="@_terminalDrawerOpen" Elevation="2" Variant="DrawerVariant.Temporary" Overlay="false" Anchor="Anchor.Bottom">
 		@if (_solutionFilePath is not null)
