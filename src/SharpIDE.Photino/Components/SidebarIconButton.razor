@@ -1,0 +1,14 @@
+﻿<MudButton Style="min-width: 20px;" FullWidth="true">
+	<MudStack AlignItems="AlignItems.Center" Spacing="0">
+		<MudIcon Icon="@Icon" Color="Color.Inherit"/>
+		<MudText Style="margin-top: 1px" Typo="Typo.caption">@Text</MudText>
+	</MudStack>
+</MudButton>
+
+@code {
+	[Parameter, EditorRequired]
+    public string? Icon { get; set; }
+
+	[Parameter, EditorRequired]
+    public string? Text { get; set; }
+}
