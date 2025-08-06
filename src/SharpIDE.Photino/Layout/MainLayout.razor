@@ -11,7 +11,7 @@
 <MudLayout Style="height: 100%">
 	<MudAppBar Dense="true" Gutters="false" Class="px-2">
 		<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-			<MudButton OnClick="@DrawerToggle" Style="min-width: 20px;">
+			<MudButton Style="min-width: 20px;">
 				<MudIcon Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit"/>
 			</MudButton>
 			<MudButton OnClick="@LoadSolutionFromInteractivePicker" Style="min-width: 20px;">
@@ -45,10 +45,10 @@
 		<MudStack Style="height: 100%; overflow: hidden" Row="true" Spacing="0" StretchItems="StretchItems.Middle">
 			<MudPaper Elevation="6" Height="100%" Style="background-color: var(--mud-palette-appbar-background); z-index: 1200;">
 				<MudStack AlignItems="AlignItems.Center" Spacing="1" Style="padding: 4px; height: 100%">
-					<SidebarIconButton Icon="@Icons.Material.Filled.FolderOpen" Text="Explorer" />
+					<SidebarIconButton Icon="@Icons.Material.Filled.FolderOpen" Text="Explorer" OnClick="@DrawerToggle" />
 					<MudSpacer />
-					<SidebarIconButton Icon="@Icons.Material.Filled.PlayArrow" Text="Run" OnClick="@RunDrawerToggle" />
-					<SidebarIconButton Icon="@Icons.Material.Filled.Terminal" Text="Build" />
+					<SidebarIconButton Icon="@Icons.Material.Filled.PlayArrow" Text="Run" OnClick="@SelectRunPanel" />
+					<SidebarIconButton Icon="@Icons.Material.Filled.Terminal" Text="Build" OnClick="@SelectBuildPanel" />
 				</MudStack>
 			</MudPaper>
 			<div>
@@ -70,34 +70,54 @@
 						</div>
 					</MudDrawerContainer>
 				</MudPaper>
-				<div>Run</div>
+				<div>
+					@if (_solutionFilePath is not null && _selectedBottomPanel is not null)
+					{
+						@(_selectedBottomPanel switch
+						{
+							BottomPanelType.Run => @<RunPanel/>,
+							BottomPanelType.Build => @<TerminalOutputDisplay/>,
+							_ => throw new InvalidOperationException("Unknown bottom panel type")
+						})
+					}
+				</div>
 			</div>
 
 			<div>@* fake for StretchItems.Middle *@</div>
 		</MudStack>
 	</MudMainContent>
-	<MudDrawer @bind-Open="@_terminalDrawerOpen" Elevation="2" Variant="DrawerVariant.Temporary" Overlay="false" Anchor="Anchor.Bottom">
-		@if (_solutionFilePath is not null)
-		{
-			<MudText>Terminal</MudText>
-			<TerminalOutputDisplay/>
-		}
-	</MudDrawer>
 </MudLayout>
 
 @code {
 	private bool _drawerOpen = true;
 	private bool _terminalDrawerOpen = false;
-	private bool _runDrawerOpen = true;
+	private bool _bottomDrawerOpen = true;
 	private void DrawerToggle() => _drawerOpen = !_drawerOpen;
 	private void TerminalDrawerToggle() => _terminalDrawerOpen = !_terminalDrawerOpen;
-	private void RunDrawerToggle() => _runDrawerOpen = !_runDrawerOpen;
+	private void BottomDrawerToggle() => _bottomDrawerOpen = !_bottomDrawerOpen;
 
 	private string? _solutionFilePath;
 	private SharpIdeSolutionModel? _solutionModel;
 	private SharpIdeFile? _selectedFile;
+	private BottomPanelType? _selectedBottomPanel = BottomPanelType.Build;
 
-	private string MainContentHeight => _runDrawerOpen ? "70%" : "100%";
+	private string MainContentHeight => _bottomDrawerOpen ? "70%" : "100%";
+
+	private void SelectRunPanel() => SelectBottomPanel(BottomPanelType.Run);
+	private void SelectBuildPanel() => SelectBottomPanel(BottomPanelType.Build);
+	private void SelectBottomPanel(BottomPanelType bottomPanelType)
+	{
+		if (_selectedBottomPanel == bottomPanelType)
+		{
+			_selectedBottomPanel = null;
+			_bottomDrawerOpen = false;
+		}
+		else
+		{
+			_selectedBottomPanel = bottomPanelType;
+			_bottomDrawerOpen = true;
+		}
+	}
 
 	protected override async Task OnInitializedAsync()
 	{
