@@ -2,6 +2,7 @@
 using Ardalis.GuardClauses;
 using AsyncReadProcess.Common;
 using AsyncReadProcess;
+using SharpIDE.Application.Features.Events;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 
 namespace SharpIDE.Application.Features.Run;
@@ -39,8 +40,11 @@ public class RunService
 			}
 		});
 
-
+		project.Running = true;
+		GlobalEvents.InvokeProjectsRunningChanged();
 		await process.WaitForExitAsync();
+		project.Running = false;
+		GlobalEvents.InvokeProjectsRunningChanged();
 
 		Console.WriteLine("Project ran successfully.");
 	}
