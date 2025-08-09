@@ -46,7 +46,7 @@
 	[Parameter, EditorRequired]
 	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
 
-	private MudTabs _mudTabsRef;
+	private MudTabs _mudTabsRef = null!;
 
 	private IEnumerable<SharpIdeProjectModel> OpenTabs => SolutionModel.AllProjects.Where(s => s.OpenInRunPanel);
 
