@@ -18,7 +18,7 @@
 	}
 </style>
 
-<MudTreeView T="ISharpIdeNode" Dense="true" ExpandOnClick="true">
+<MudTreeView T="ISharpIdeNode" Dense="true" ExpandOnClick="true" SelectedValue="@SelectedNode" SelectedValueChanged="@SelectedNodeChanged">
 	<MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Expanded="true" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Primary" Value="@SolutionModel" Text="@SolutionModel.Name">
 		@foreach (var folder in SolutionModel.Folders)
 		{
@@ -44,34 +44,14 @@
 	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
 
 	[Parameter, EditorRequired]
-	public SharpIdeFile SelectedFile { get; set; } = null!;
+	public ISharpIdeNode? SelectedNode { get; set; } = null!;
 
 	[Parameter]
-	public EventCallback<SharpIdeFile> SelectedFileChanged { get; set; }
+	public EventCallback<ISharpIdeNode?> SelectedNodeChanged { get; set; }
 
 	private MudMenu _contextMenuRef = null!;
 	private SharpIdeProjectModel? _contextMenuProject;
-
-	protected override async Task OnParametersSetAsync()
-	{
-		if (SelectedFile is null) return;
-		var parent = SelectedFile.Parent;
-		parent.Expanded = true;
-		while (parent is IChildSharpIdeNode childNode)
-		{
-			if (childNode is not IExpandableSharpIdeNode expandableNode) throw new InvalidOperationException("Parent node must implement IExpandableSharpIdeNode");
-			expandableNode.Expanded = true;
-			parent = childNode.Parent;
-		}
-		if (parent is not SharpIdeSolutionModel solutionModel) throw new InvalidOperationException("Parent node must be a SharpIdeSolutionModel");
-		solutionModel.Expanded = true;
-	}
-
-	private async Task InvokeSelectedFileChanged(SharpIdeFile file)
-	{
-		SelectedFile = file;
-		await SelectedFileChanged.InvokeAsync(file);
-	}
+	private MudTreeView<ISharpIdeNode> _treeViewRef = null!;
 
 	private async Task OpenProjectContextMenu(MouseEventArgs args, SharpIdeProjectModel project)
 	{
@@ -147,8 +127,7 @@
 
 	private RenderFragment GetFileFragment(SharpIdeFile file) =>
 		@<text>
-			 <MudTreeViewItem T="ISharpIdeNode" Icon="@Icons.Custom.FileFormats.FileCode" TextTypo="Typo.body2" Text="@file.Name" Value="@file" OnClick="@(async () => await InvokeSelectedFileChanged(file))"/>
+			 <MudTreeViewItem T="ISharpIdeNode" Icon="@Icons.Custom.FileFormats.FileCode" TextTypo="Typo.body2" Text="@file.Name" Value="@file"/>
 		</text>;
-
 
 }

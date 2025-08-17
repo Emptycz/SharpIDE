@@ -5,7 +5,7 @@
 	<MudTreeView T="string" Dense="true" ExpandOnClick="true">
 		@foreach (var project in SolutionModel.AllProjects)
 		{
-			<ProjectProblemComponent ProjectModel="@project" SelectedFile="@SelectedFile" SelectedFileChanged="@SelectedFileChanged"/>
+			<ProjectProblemComponent ProjectModel="@project" OnFileSelected="@OnFileSelected" />
 		}
 	</MudTreeView>
 </MudStack>
@@ -14,9 +14,6 @@
 	[Parameter, EditorRequired]
 	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
 
-	[Parameter, EditorRequired]
-	public SharpIdeFile SelectedFile { get; set; } = null!;
-
 	[Parameter]
-	public EventCallback<SharpIdeFile> SelectedFileChanged { get; set; }
+	public EventCallback<SharpIdeFile> OnFileSelected { get; set; }
 }

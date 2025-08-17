@@ -1,10 +1,8 @@
-﻿@using Microsoft.Build.Tasks
-@using SharpIDE.Application.Features.Analysis
+﻿@using SharpIDE.Application.Features.Analysis
 @using SharpIDE.Application.Features.Build
 @using SharpIDE.Application.Features.Events
 @using SharpIDE.Application.Features.SolutionDiscovery
 @using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence
-@using SharpIDE.Photino.Components.Problems
 @using SharpIDE.Photino.Models
 @inherits LayoutComponentBase
 
@@ -66,7 +64,7 @@
 						<MudDrawer @bind-Open="@_drawerOpen" Style="height: 100%" Width="400px" Fixed="false" Variant="@DrawerVariant.Persistent">
 							@if (_solutionFilePath is not null)
 							{
-								<SolutionExplorer @bind-SelectedFile="@_selectedFile" SolutionModel="@_solutionModel"/>
+								<SolutionExplorer @bind-SelectedNode="@_selectedNode" @bind-SelectedNode:after="@AfterSelectedNodeChanged" SolutionModel="@_solutionModel"/>
 							}
 						</MudDrawer>
 						<div class="d-flex justify-center align-center mud-height-full" style="flex-direction: row">
@@ -83,7 +81,7 @@
 					@if (_solutionFilePath is not null)
 					{
 						<DisplayNoneComponent Visible="@(_selectedBottomPanel is BottomPanelType.Problems)">
-							<ProblemsPanel SolutionModel="@_solutionModel" @bind-SelectedFile="@_selectedFile" />
+							<ProblemsPanel SolutionModel="@_solutionModel" OnFileSelected="@OnProblemSelected" />
 						</DisplayNoneComponent>
 						<DisplayNoneComponent Visible="@(_selectedBottomPanel is BottomPanelType.Run)">
 							<RunPanel SolutionModel="@_solutionModel"/>
@@ -107,6 +105,7 @@
 
 	private string? _solutionFilePath;
 	private SharpIdeSolutionModel? _solutionModel;
+	private ISharpIdeNode? _selectedNode;
 	private SharpIdeFile? _selectedFile;
 	private BottomPanelType? _selectedBottomPanel = null;
 
@@ -138,6 +137,31 @@
 	{
 		await LoadSolutionFromInteractivePicker(AppState.IdeSettings.AutoOpenLastSolution);
 		GlobalEvents.StartedRunningProject += OnStartedRunningProject;
+	}
+
+	private void OnProblemSelected(SharpIdeFile file)
+	{
+		_selectedFile = file;
+		_selectedNode = file;
+		var parent = _selectedFile.Parent;
+		parent.Expanded = true;
+		while (parent is IChildSharpIdeNode childNode)
+		{
+			if (childNode is not IExpandableSharpIdeNode expandableParent) throw new InvalidOperationException("Parent node must implement IExpandableSharpIdeNode");
+			expandableParent.Expanded = true;
+			parent = childNode.Parent;
+		}
+		if (parent is not SharpIdeSolutionModel solutionModel) throw new InvalidOperationException("Parent node must be a SharpIdeSolutionModel");
+		solutionModel.Expanded = true;
+		StateHasChanged();
+	}
+
+	private void AfterSelectedNodeChanged()
+	{
+		if (_selectedNode is SharpIdeFile file)
+		{
+			_selectedFile = file;
+		}
 	}
 
 	private async Task OnStartedRunningProject()
@@ -180,5 +204,4 @@
 	{
 		var dialogRef = await DialogService.ShowAsync<IdeSettingsDialog>("SharpIDE Settings", new DialogOptions { MaxWidth = MaxWidth.Medium, CloseButton = true });
 	}
-
 }

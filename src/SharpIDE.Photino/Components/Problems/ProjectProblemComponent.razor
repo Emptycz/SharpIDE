@@ -25,11 +25,8 @@
 	[Parameter, EditorRequired]
 	public SharpIdeProjectModel ProjectModel { get; set; } = null!;
 
-	[Parameter, EditorRequired]
-	public SharpIdeFile SelectedFile { get; set; } = null!;
-
 	[Parameter]
-	public EventCallback<SharpIdeFile> SelectedFileChanged { get; set; }
+	public EventCallback<SharpIdeFile> OnFileSelected { get; set; }
 
 	private ImmutableArray<Diagnostic> _diagnostics = [];
 
@@ -48,7 +45,7 @@
 			.Concat(ProjectModel.Folders.SelectMany(f => f.GetAllFiles()))
 			.Single(s => s.Path == diagnostic.Location.SourceTree?.GetMappedLineSpan(diagnostic.Location.SourceSpan).Path);
 
-		await SelectedFileChanged.InvokeAsync(file);
+		await OnFileSelected.InvokeAsync(file);
 	}
 
 	protected override async Task OnInitializedAsync()
