@@ -18,7 +18,8 @@ public class DebuggingService
 			StartInfo = new ProcessStartInfo
 			{
 				FileName = @"C:\Users\Matthew\Downloads\netcoredbg-win64\netcoredbg\netcoredbg.exe",
-				Arguments = """  --interpreter=vscode -- "C:\Program Files\dotnet\dotnet.exe" "C:\Users\Matthew\Documents\Git\BlazorCodeBreaker\artifacts\bin\WebApi\debug\WebApi.dll" """,				RedirectStandardInput = true,
+				Arguments = """--interpreter=vscode""",
+				RedirectStandardInput = true,
 				RedirectStandardOutput = true,
 				UseShellExecute = false
 			}
@@ -31,11 +32,13 @@ public class DebuggingService
 		{
 			options.AdapterId = "coreclr";
 			options.ClientId = "vscode";
+			options.ClientName = "Visual Studio Code";
 			options.LinesStartAt1 = true;
 			options.ColumnsStartAt1 = true;
 			options.SupportsVariableType = true;
 			options.SupportsVariablePaging = true;
 			options.SupportsRunInTerminalRequest = true;
+			options.Locale = "en-us";
 			options.PathFormat = PathFormat.Path;
 			options
 				.WithInput(process.StandardOutput.BaseStream)
@@ -52,6 +55,11 @@ public class DebuggingService
 				{
 					Console.WriteLine($"Breakpoint hit: {breakpointEvent}");
 				})
+				.OnRunInTerminal(async (arguments, token) =>
+				{
+					Console.WriteLine("Run In Terminal");
+					return new RunInTerminalResponse();
+				})
 				.OnStopped(async (stoppedEvent, token) =>
 				{
 					Console.WriteLine($"Notification received: {stoppedEvent}");
@@ -64,7 +72,6 @@ public class DebuggingService
 			//.OnNotification(EventNames., );
 		});
 
-
 		await client.Initialize(cancellationToken);
 		var breakpointsResponse = await client.SetBreakpoints(new SetBreakpointsArguments
 		{
@@ -76,7 +83,10 @@ public class DebuggingService
 			NoDebug = false,
 			ExtensionData = new Dictionary<string, object>
 			{
-				//["program"] = @"""C:\Program Files\dotnet\dotnet.exe"" ""C:\Users\Matthew\Documents\Git\BlazorCodeBreaker\artifacts\bin\WebApi\debug\WebApi.dll""",
+				["name"] = "LaunchRequestName",
+				["type"] = "coreclr",
+				["program"] = @"C:\Users\Matthew\Documents\Git\BlazorCodeBreaker\artifacts\bin\WebApi\debug\WebApi.dll",
+				["cwd"] = ""
 				//["cwd"] = @"C:\Users\Matthew\Documents\Git\BlazorCodeBreaker\artifacts\bin\WebApi\debug", // working directory
 				//["stopAtEntry"] = true,
 				//["env"] = new Dictionary<string, string> { { "ASPNETCORE_ENVIRONMENT", "Development" } }
@@ -96,7 +106,7 @@ public class DebuggingService
 		var variablesResponse = await client.RequestVariables(new VariablesArguments() {VariablesReference = scope.VariablesReference}, cancellationToken);
 		var variable = variablesResponse.Variables!.Skip(1).First();
 		var variables2Response = await client.RequestVariables(new VariablesArguments() {VariablesReference = variable.VariablesReference}, cancellationToken);
-		var variable2 = variables2Response.Variables!.Single();
+		var variable2 = variables2Response.Variables!.First();
 		var variables3Response = await client.RequestVariables(new VariablesArguments() {VariablesReference = variable2.VariablesReference}, cancellationToken);
 		//var continueResponse = await client.RequestContinue(new ContinueArguments(){ThreadId = 1}, cancellationToken);
 		//await Task.Delay(1000);

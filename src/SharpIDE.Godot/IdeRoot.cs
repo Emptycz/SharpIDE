@@ -4,6 +4,7 @@ using System.Linq;
 using Godot;
 using Microsoft.Build.Locator;
 using SharpIDE.Application.Features.Analysis;
+using SharpIDE.Application.Features.Debugging;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 
 namespace SharpIDE.Godot;
@@ -25,6 +26,8 @@ public partial class IdeRoot : Control
 		_fileDialog.FileSelected += OnFileSelected;
 		_openSlnButton.Pressed += () => _fileDialog.Visible = true;
 		//_fileDialog.Visible = true;
+		var test = new DebuggingService();
+		_ = test.Test();
 		OnFileSelected(@"C:\Users\Matthew\Documents\Git\BlazorCodeBreaker\BlazorCodeBreaker.slnx");
 	}
 
