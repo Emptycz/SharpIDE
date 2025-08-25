@@ -44,3 +44,36 @@ public static class NodeExtensions
         return taskCompletionSource.Task;
     }
 }
+
+public static class GodotTask
+{
+    public static async Task Run(Action action)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"Error: {ex}");
+            }
+        });
+    }
+    
+    public static async Task Run(Func<Task> action)
+    {
+        await Task.Run(async () =>
+        {
+            try
+            {
+                await action();
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"Error: {ex}");
+            }
+        });
+    }
+}

@@ -38,6 +38,7 @@ public partial class RunPanel : Control
 		{
 			_tabBar.SetTabIcon(existingRunPanelTab.TabBarTab, RunningIcon);
 			existingRunPanelTab.ClearTerminal();
+			existingRunPanelTab.StartWritingFromProjectOutput();
 			return;
 		}
 		
@@ -48,6 +49,7 @@ public partial class RunPanel : Control
 		runPanelTab.TabBarTab = tabIdx;
 		_tabBar.SetTabIcon(runPanelTab.TabBarTab, RunningIcon);
 		_tabsPanel.AddChild(runPanelTab);
+		runPanelTab.StartWritingFromProjectOutput();
 	}
 	
 	public void ProjectStoppedRunning(SharpIdeProjectModel projectModel)
