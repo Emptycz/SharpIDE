@@ -184,6 +184,7 @@ highlight_current_line = true
 symbol_lookup_on_click = true
 symbol_tooltip_on_hover = true
 gutters_draw_breakpoints_gutter = true
+gutters_draw_executing_lines = true
 gutters_draw_line_numbers = true
 code_completion_enabled = true
 auto_brace_completion_enabled = true

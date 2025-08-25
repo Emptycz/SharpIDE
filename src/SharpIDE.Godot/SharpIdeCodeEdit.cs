@@ -54,19 +54,20 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	{
 		var lineInt = (int)line;
 		var breakpointAdded = IsLineBreakpointed(lineInt);
-		lineInt++; // Godot is 0-indexed, Debugging is 1-indexed
-		Guard.Against.Negative(lineInt, nameof(lineInt));
+		var lineForDebugger = lineInt + 1; // Godot is 0-indexed, Debugging is 1-indexed
 		var breakpoints = Singletons.RunService.Breakpoints.GetOrAdd(_currentFile, []); 
 		if (breakpointAdded)
 		{
-			breakpoints.Add(new Breakpoint { Line = lineInt } );
+			breakpoints.Add(new Breakpoint { Line = lineForDebugger } );
+			SetLineBackgroundColor(lineInt, new Color("3a2323"));
 		}
 		else
 		{
-			var breakpoint = breakpoints.Single(b => b.Line == lineInt);
+			var breakpoint = breakpoints.Single(b => b.Line == lineForDebugger);
 			breakpoints.Remove(breakpoint);
+			SetLineBackgroundColor(lineInt, Colors.Transparent);
 		}
-		GD.Print($"Breakpoint {(breakpointAdded ? "added" : "removed")} at line {lineInt}");
+		GD.Print($"Breakpoint {(breakpointAdded ? "added" : "removed")} at line {lineForDebugger}");
 	}
 
 	private void OnSymbolLookup(string symbol, long line, long column)

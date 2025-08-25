@@ -1,4 +1,4 @@
-extends Node2D
+extends Control
 
 # Declare an empty dictionary object
 var game = {}
@@ -12,7 +12,7 @@ func _ready():
 		"energy": 67
 	}
 	
-	if game.empty():
+	if game.is_empty():
 		# Add data to the game dictionary
 		game["player"] = player
 		game["score"] = 0
