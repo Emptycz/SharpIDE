@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://d4d0umsglu2ex"]
 
-[ext_resource type="Script" uid="uid://b6gq81odfn8ok" path="res://Features/Debug_/DebugPanelTab/DebugPanelTab.cs" id="1_yinwn"]
-[ext_resource type="PackedScene" uid="uid://bdu08nd7si641" path="res://Features/Debug_/DebugPanelTab/SubTabs/ThreadsVariablesSubTab.tscn" id="2_0jpwf"]
+[ext_resource type="Script" path="res://Features/Debug_/DebugPanelTab/DebugPanelTab.cs" id="1_ppo25"]
+[ext_resource type="PackedScene" path="res://Features/Debug_/DebugPanelTab/SubTabs/ThreadsVariablesSubTab.tscn" id="2_e6ax5"]
 
 [node name="DebugPanelTab" type="Control"]
 layout_mode = 3
@@ -10,7 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_yinwn")
+script = ExtResource("1_ppo25")
 
 [node name="TabContainer" type="TabContainer" parent="."]
 layout_mode = 1
@@ -25,7 +25,7 @@ current_tab = 0
 layout_mode = 2
 metadata/_tab_index = 0
 
-[node name="ThreadsVariablesSubTab" parent="TabContainer/Threads & Variables" instance=ExtResource("2_0jpwf")]
+[node name="ThreadsVariablesSubTab" parent="TabContainer/Threads & Variables" instance=ExtResource("2_e6ax5")]
 layout_mode = 1
 
 [node name="Console" type="Control" parent="TabContainer"]
