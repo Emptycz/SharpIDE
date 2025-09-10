@@ -117,7 +117,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	{
 		// update the MSBuildWorkspace
 		RoslynAnalysis.UpdateDocument(_currentFile, Text);
-		_ = GodotTask.Run(async () =>
+		_ = Task.GodotRun(async () =>
 		{
 			var syntaxHighlighting = await RoslynAnalysis.GetDocumentSyntaxHighlighting(_currentFile);
 			var diagnostics = await RoslynAnalysis.GetDocumentDiagnostics(_currentFile);
@@ -136,7 +136,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		if (codeAction is null) return;
 		var currentCaretPosition = GetCaretPosition();
 		var vScroll = GetVScroll();
-		_ = GodotTask.Run(async () =>
+		_ = Task.GodotRun(async () =>
 		{
 			await RoslynAnalysis.ApplyCodeActionAsync(codeAction);
 			var fileContents = await File.ReadAllTextAsync(_currentFile.Path);
@@ -244,7 +244,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		SetLineColour(godotLine);
 		var threadId = _executionStopInfo.ThreadId;
 		_executionStopInfo = null;
-		_ = GodotTask.Run(async () =>
+		_ = Task.GodotRun(async () =>
 		{
 			await Singletons.RunService.SendDebuggerStepOver(threadId);
 		});
@@ -292,7 +292,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		_popupMenu.AddItem("Getting Context Actions...", 0);
 		_popupMenu.Popup();
 		GD.Print($"Code fixes requested at line {caretLine}, column {caretColumn}");
-		_ = GodotTask.Run(async () =>
+		_ = Task.GodotRun(async () =>
 		{
 			var linePos = new LinePosition(caretLine, caretColumn);
 			var codeActions = await RoslynAnalysis.GetCodeFixesForDocumentAtPosition(_currentFile, linePos);
@@ -317,7 +317,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		var (caretLine, caretColumn) = GetCaretPosition();
 		
 		GD.Print($"Code completion requested at line {caretLine}, column {caretColumn}");
-		_ = GodotTask.Run(async () =>
+		_ = Task.GodotRun(async () =>
 		{
 			var linePos = new LinePosition(caretLine, caretColumn);
 				

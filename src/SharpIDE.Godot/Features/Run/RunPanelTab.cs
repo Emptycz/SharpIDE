@@ -25,7 +25,7 @@ public partial class RunPanelTab : Control
 			GD.PrintErr("Attempted to start writing from project output, but a write task is already running.");
 			return;
 		}
-		_writeTask = GodotTask.Run(async () =>
+		_writeTask = Task.GodotRun(async () =>
 		{
 			await foreach (var array in Project.RunningOutputChannel!.Reader.ReadAllAsync().ConfigureAwait(false))
 			{

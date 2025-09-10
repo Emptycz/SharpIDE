@@ -65,7 +65,7 @@ public partial class IdeRoot : Control
 
 	private void OnFileSelected(string path)
 	{
-		_ = GodotTask.Run(async () =>
+		_ = Task.GodotRun(async () =>
 		{
 			GD.Print($"Selected: {path}");
 			var solutionModel = await VsPersistenceMapper.GetSolutionModel(path);

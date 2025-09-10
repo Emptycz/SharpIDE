@@ -4,74 +4,80 @@ namespace SharpIDE.Godot;
 
 public static class NodeExtensions
 {
-    public static Task InvokeAsync(this Node node, Action workItem)
+    extension(Node node)
     {
-        var taskCompletionSource = new TaskCompletionSource();
-        //WorkerThreadPool.AddTask();
-        Callable.From(() =>
+        public Task InvokeAsync(Action workItem)
         {
-            try
+            var taskCompletionSource = new TaskCompletionSource();
+            //WorkerThreadPool.AddTask();
+            Callable.From(() =>
             {
-                workItem();
-                taskCompletionSource.SetResult();
-            }
-            catch (Exception ex)
-            {
-                taskCompletionSource.SetException(ex);
-            }
-        }).CallDeferred();
-        return taskCompletionSource.Task;
-    }
-    
-    public static Task InvokeAsync(this Node node, Func<Task> workItem)
-    {
-        var taskCompletionSource = new TaskCompletionSource();
-        //WorkerThreadPool.AddTask();
-        Callable.From(async void () =>
+                try
+                {
+                    workItem();
+                    taskCompletionSource.SetResult();
+                }
+                catch (Exception ex)
+                {
+                    taskCompletionSource.SetException(ex);
+                }
+            }).CallDeferred();
+            return taskCompletionSource.Task;
+        }
+        
+        public Task InvokeAsync(Func<Task> workItem)
         {
-            try
+            var taskCompletionSource = new TaskCompletionSource();
+            //WorkerThreadPool.AddTask();
+            Callable.From(async void () =>
             {
-                await workItem();
-                taskCompletionSource.SetResult();
-            }
-            catch (Exception ex)
-            {
-                taskCompletionSource.SetException(ex);
-            }
-        }).CallDeferred();
-        return taskCompletionSource.Task;
+                try
+                {
+                    await workItem();
+                    taskCompletionSource.SetResult();
+                }
+                catch (Exception ex)
+                {
+                    taskCompletionSource.SetException(ex);
+                }
+            }).CallDeferred();
+            return taskCompletionSource.Task;
+        }
     }
 }
 
 public static class GodotTask
 {
-    public static async Task Run(Action action)
+    extension(Task task)
     {
-        await Task.Run(() =>
+        public static async Task GodotRun(Action action)
         {
-            try
+            await Task.Run(() =>
             {
-                action();
-            }
-            catch (Exception ex)
-            {
-                GD.PrintErr($"Error: {ex}");
-            }
-        });
-    }
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    GD.PrintErr($"Error: {ex}");
+                }
+            });
+        }
     
-    public static async Task Run(Func<Task> action)
-    {
-        await Task.Run(async () =>
+        public static async Task GodotRun(Func<Task> action)
         {
-            try
+            await Task.Run(async () =>
             {
-                await action();
-            }
-            catch (Exception ex)
-            {
-                GD.PrintErr($"Error: {ex}");
-            }
-        });
+                try
+                {
+                    await action();
+                }
+                catch (Exception ex)
+                {
+                    GD.PrintErr($"Error: {ex}");
+                }
+            });
+        }
     }
 }

@@ -21,7 +21,7 @@ public partial class BuildPanel : Control
             await this.InvokeAsync(() => _terminal.Clear());
             return;
         }
-        _writeTask = GodotTask.Run(async () =>
+        _writeTask = Task.GodotRun(async () =>
         {
             await this.InvokeAsync(() => _terminal.Clear());
             await foreach (var str in Singletons.BuildService.BuildTextWriter.ConsoleChannel.Reader.ReadAllAsync().ConfigureAwait(false))
