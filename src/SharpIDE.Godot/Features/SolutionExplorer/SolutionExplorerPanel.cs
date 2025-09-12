@@ -16,6 +16,8 @@ public partial class SolutionExplorerPanel : Panel
 	public Texture2D FolderIcon { get; set; } = null!;
 	[Export]
 	public Texture2D SlnFolderIcon { get; set; } = null!;
+	[Export]
+	public Texture2D CsprojIcon { get; set; } = null!;
 	
 	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
 	private Tree _tree = null!;
@@ -82,6 +84,7 @@ public partial class SolutionExplorerPanel : Panel
 	{
 		var projectItem = _tree.CreateItem(parent);
 		projectItem.SetText(0, project.Name);
+		projectItem.SetIcon(0, CsprojIcon);
 
 		foreach (var sharpIdeFolder in project.Folders)
 		{
