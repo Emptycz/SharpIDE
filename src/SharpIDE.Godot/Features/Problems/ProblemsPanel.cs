@@ -13,6 +13,8 @@ public partial class ProblemsPanel : Control
     public Texture2D WarningIcon { get; set; } = null!;
     [Export]
     public Texture2D ErrorIcon { get; set; } = null!;
+    [Export]
+    public Texture2D CsprojIcon { get; set; } = null!;
     
     public SharpIdeSolutionModel? Solution { get; set; }
     
@@ -59,6 +61,7 @@ public partial class ProblemsPanel : Control
         {
             var treeItem = tree.CreateItem(parent);
             treeItem.SetText(0, e.NewItem.Value.Name);
+            treeItem.SetIcon(0, CsprojIcon);
             e.NewItem.View.Value = treeItem;
             
             Observable.EveryValueChanged(e.NewItem.Value, s => s.Diagnostics.Count).Subscribe(s => treeItem.Visible = s is not 0).AddTo(this);
