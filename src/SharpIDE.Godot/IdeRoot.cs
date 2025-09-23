@@ -80,6 +80,7 @@ public partial class IdeRoot : Control
 			_solutionExplorerPanel.SolutionModel = solutionModel;
 			_codeEditorPanel.Solution = solutionModel;
 			_bottomPanelManager.Solution = solutionModel;
+			_searchWindow.Solution = solutionModel;
 			Callable.From(_solutionExplorerPanel.RepopulateTree).CallDeferred();
 			RoslynAnalysis.StartSolutionAnalysis(solutionModel);
 				
