@@ -3,7 +3,7 @@ using System.Composition.Hosting;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CodeFixes;
 
-namespace SharpIDE.Application.Features.Analysis;
+namespace SharpIDE.Application.Features.Analysis.FixLoaders;
 
 public static class CodeFixProviderLoader
 {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Razor.Language;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.AspNetCore.Razor.Language.Syntax;
 using Microsoft.CodeAnalysis.Razor.SemanticTokens;
+using Microsoft.CodeAnalysis.Text;
 
-namespace SharpIDE.Application.Features.Analysis;
+namespace SharpIDE.Application.Features.Analysis.Razor;
 
 // https://github.com/dotnet/razor/blob/main/src/Razor/src/Microsoft.CodeAnalysis.Razor.Workspaces/SemanticTokens/SemanticTokensVisitor.cs
 internal sealed class CustomSemanticTokensVisitor : SyntaxWalker

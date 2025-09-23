@@ -15,6 +15,8 @@ using Microsoft.CodeAnalysis.Remote.Razor.ProjectSystem;
 using Microsoft.CodeAnalysis.Remote.Razor.SemanticTokens;
 using Microsoft.CodeAnalysis.Text;
 using NuGet.Packaging;
+using SharpIDE.Application.Features.Analysis.FixLoaders;
+using SharpIDE.Application.Features.Analysis.Razor;
 using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 using SharpIDE.RazorAccess;
@@ -202,29 +204,25 @@ public static class RoslynAnalysis
 		List<string> relevantTypes = ["razorDirective", "razorTransition", "markupTextLiteral", "markupTagDelimiter", "markupElement", "razorComponentElement", "razorComponentAttribute", "razorComment", "razorCommentTransition", "razorCommentStar", "markupOperator", "markupAttributeQuote"];
 		var ranges = new List<SemanticRange>();
 		CustomSemanticTokensVisitor.AddSemanticRanges(ranges, razorCodeDocument, generatedDocSyntaxRoot!.FullSpan, _semanticTokensLegendService!, false);
-		var relevantRanges = ranges.Select(s =>
-		{
-			var kind = _semanticTokensLegendService!.TokenTypes.All[s.Kind];
-			return new TranslatedSemanticRange { Range = s, Kind = kind };
-		}).Where(s => relevantTypes.Contains(s.Kind)).ToList();
 
 		//var allTypes = ranges.Select(s => _semanticTokensLegendService!.TokenTypes.All[s.Kind]).Distinct().ToList();
-		var semanticRangeRazorSpans = relevantRanges.Select(s =>
-		{
-			var linePositionSpan = s.Range.AsLinePositionSpan();
-			var textSpan = razorText.GetTextSpan(linePositionSpan);
-			var sourceSpan = new SourceSpan(
-				fileModel.Path,
-				textSpan.Start,
-				linePositionSpan.Start.Line,
-				linePositionSpan.Start.Character,
-				textSpan.Length,
-				1,
-				linePositionSpan.End.Character
-			);
-
-			return new SharpIdeRazorClassifiedSpan(sourceSpan.ToSharpIdeSourceSpan(), SharpIdeRazorSpanKind.Markup, null, s.Kind);
-		}).ToList();
+		var semanticRangeRazorSpans = ranges
+			.Where(s => relevantTypes.Contains(_semanticTokensLegendService!.TokenTypes.All[s.Kind]))
+			.Select(s =>
+			{
+				var linePositionSpan = s.AsLinePositionSpan();
+				var textSpan = razorText.GetTextSpan(linePositionSpan);
+				var sourceSpan = new SourceSpan(
+					fileModel.Path,
+					textSpan.Start,
+					linePositionSpan.Start.Line,
+					linePositionSpan.Start.Character,
+					textSpan.Length,
+					1,
+					linePositionSpan.End.Character
+				);
+				return new SharpIdeRazorClassifiedSpan(sourceSpan.ToSharpIdeSourceSpan(), SharpIdeRazorSpanKind.Markup, null, _semanticTokensLegendService!.TokenTypes.All[s.Kind]);
+			}).ToList();
 
 		// var debugMappedBackTranslatedSemanticRanges = relevantRanges.Select(s =>
 		// {

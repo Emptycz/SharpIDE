@@ -2,7 +2,7 @@
 using System.Reflection;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 
-namespace SharpIDE.Application.Features.Analysis;
+namespace SharpIDE.Application.Features.Analysis.FixLoaders;
 
 public static class CodeRefactoringProviderLoader
 {

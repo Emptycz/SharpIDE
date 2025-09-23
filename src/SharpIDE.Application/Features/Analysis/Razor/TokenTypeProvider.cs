@@ -3,7 +3,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis.ExternalAccess.Razor;
 using Microsoft.CodeAnalysis.Razor.SemanticTokens;
 
-namespace SharpIDE.Application.Features.Analysis;
+namespace SharpIDE.Application.Features.Analysis.Razor;
 
 public static class TokenTypeProvider
 {
