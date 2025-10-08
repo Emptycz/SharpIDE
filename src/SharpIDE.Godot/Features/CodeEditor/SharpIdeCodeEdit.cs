@@ -50,8 +50,8 @@ public partial class SharpIdeCodeEdit : CodeEdit
 
 	public override void _ExitTree()
 	{
-		_currentFile.FileContentsChangedExternallyFromDisk.Unsubscribe(OnFileChangedExternallyFromDisk);
-		_currentFile.FileContentsChangedExternally.Unsubscribe(OnFileChangedExternallyInMemory);
+		_currentFile?.FileContentsChangedExternallyFromDisk.Unsubscribe(OnFileChangedExternallyFromDisk);
+		_currentFile?.FileContentsChangedExternally.Unsubscribe(OnFileChangedExternallyInMemory);
 	}
 
 	private void OnBreakpointToggled(long line)
