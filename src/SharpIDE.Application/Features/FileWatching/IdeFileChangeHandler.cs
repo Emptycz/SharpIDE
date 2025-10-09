@@ -11,11 +11,12 @@ public class IdeFileChangeHandler
 		GlobalEvents.Instance.FileSystemWatcherInternal.FileChanged.Subscribe(OnFileChanged);
 	}
 
-	private async Task OnFileChanged(string arg)
+	private async Task OnFileChanged(string filePath)
 	{
-		var sharpIdeFile = SolutionModel.AllFiles.SingleOrDefault(f => f.Path == arg);
+		var sharpIdeFile = SolutionModel.AllFiles.SingleOrDefault(f => f.Path == filePath);
 		if (sharpIdeFile is null) return;
-		// TODO: Suppress if SharpIDE changed the file
+		if (sharpIdeFile.SuppressDiskChangeEvents.Value is true) return;
+		Console.WriteLine($"IdeFileChangeHandler: Changed - {filePath}");
 		await sharpIdeFile.FileContentsChangedExternallyFromDisk.InvokeParallelAsync();
 	}
 }

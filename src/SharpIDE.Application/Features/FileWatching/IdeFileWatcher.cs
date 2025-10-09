@@ -82,8 +82,8 @@ public sealed class IdeFileWatcher : IDisposable
 	// TODO: Make a note to users that they should not use files without extensions
 	private void HandleChanged(string fullPath)
 	{
-		if (Path.HasExtension(fullPath) is false) return;
-		Console.WriteLine($"FileSystemWatcher: Changed - {fullPath}");
+		if (Path.HasExtension(fullPath) is false) return; // we don't care about directory changes
+		//Console.WriteLine($"FileSystemWatcher: Changed - {fullPath}");
 		GlobalEvents.Instance.FileSystemWatcherInternal.FileChanged.InvokeParallelFireAndForget(fullPath);
 	}
 

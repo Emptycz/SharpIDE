@@ -57,7 +57,7 @@ public class IdeFileManager
 		if (file.IsDirty.Value is false) return;
 
 		var text = await GetFileTextAsync(file);
-		await File.WriteAllTextAsync(file.Path, text);
+		await WriteAllText(file, text);
 		file.IsDirty.Value = false;
 	}
 
@@ -70,8 +70,21 @@ public class IdeFileManager
 		}
 		else
 		{
-			await File.WriteAllTextAsync(file.Path, newText);
+			await WriteAllText(file, newText);
 		}
+	}
+
+	private static async Task WriteAllText(SharpIdeFile file, string text)
+	{
+		file.SuppressDiskChangeEvents.Value = true;
+		await File.WriteAllTextAsync(file.Path, text);
+		Console.WriteLine($"Saved file {file.Path}");
+		_ = Task.Delay(300).ContinueWith(_ =>
+		{
+			Console.WriteLine($"Re-enabling disk change events for {file.Path}");
+			file.SuppressDiskChangeEvents.Value = false;
+			Console.WriteLine($"Value is now {file.SuppressDiskChangeEvents.Value}");
+		}, CancellationToken.None, TaskContinuationOptions.RunContinuationsAsynchronously, TaskScheduler.Default);
 	}
 
 	public async Task SaveAllOpenFilesAsync()
