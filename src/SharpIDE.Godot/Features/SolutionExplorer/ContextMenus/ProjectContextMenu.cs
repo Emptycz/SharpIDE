@@ -35,7 +35,11 @@ public partial class SolutionExplorerPanel
             var actionId = (ProjectContextMenuOptions)id;
             if (actionId is ProjectContextMenuOptions.Run)
             {
-                
+                _ = Task.GodotRun(async () =>
+                {
+		            GodotGlobalEvents.Instance.BottomPanelTabExternallySelected.InvokeParallelFireAndForget(BottomPanelType.Run);
+                    await Singletons.RunService.RunProject(project);
+                });
             }
             if (actionId is ProjectContextMenuOptions.Build)
             {
