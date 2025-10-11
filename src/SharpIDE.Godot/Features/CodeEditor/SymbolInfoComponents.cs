@@ -116,7 +116,9 @@ public static class SymbolInfoComponents
             label.Pop();
             label.AddText(" ");
         }
-        foreach (var (index, parameterSymbol) in methodSymbol.Parameters.Index())
+        
+        var parameters = methodSymbol.ReducedFrom?.Parameters ?? methodSymbol.Parameters;
+        foreach (var (index, parameterSymbol) in parameters.Index())
         {
             var attributes = parameterSymbol.GetAttributes();
             if (attributes.Length is not 0)
@@ -212,7 +214,7 @@ public static class SymbolInfoComponents
                 }
             }
 
-            if (index < methodSymbol.Parameters.Length - 1)
+            if (index < parameters.Length - 1)
             {
                 label.AddText(", ");
             }
