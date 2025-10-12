@@ -165,11 +165,16 @@ public partial class CustomHighlighter : SyntaxHighlighter
             "parameter name" => CachedColors.VariableBlue,
             "local name" => CachedColors.VariableBlue,
             "type parameter name" => CachedColors.ClassGreen,
+            "delegate name" => CachedColors.ClassGreen,
+            "event name" => CachedColors.White,
 
             // Punctuation & operators
             "operator" => CachedColors.White,
             "operator - overloaded" => CachedColors.Yellow,
             "punctuation" => CachedColors.White,
+            
+            // Preprocessor
+            "preprocessor text" => CachedColors.White,
             
             // Xml comments
             "xml doc comment - delimiter" => CachedColors.CommentGreen,
