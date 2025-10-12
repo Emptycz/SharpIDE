@@ -101,7 +101,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		var popupPanel = new PopupPanel();
 		popupPanel.Unfocusable = true; // may need to change eventually for navigating to other symbols
 		popupPanel.MouseExited += () => popupPanel.QueueFree();
-		popupPanel.Size = new Vector2I(1, 1);
+		popupPanel.Size = new Vector2I(1, 1); // defaults to 100x100, will grow (but not shrink) to content
 		// set background color
 		
 		var styleBox = new StyleBoxFlat
