@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://8lk0qj233a7p"]
 
-[ext_resource type="Script" uid="uid://bah6tmifl41ce" path="res://Features/Search/SearchWindow.cs" id="1_ft33p"]
-[ext_resource type="PackedScene" uid="uid://d358tex0duum8" path="res://Features/Search/SearchResultComponent.tscn" id="2_cuaw5"]
+[ext_resource type="Script" uid="uid://bah6tmifl41ce" path="res://Features/Search/SearchInFiles/SearchWindow.cs" id="1_ft33p"]
+[ext_resource type="PackedScene" uid="uid://d358tex0duum8" path="res://Features/Search/SearchInFiles/SearchResultComponent.tscn" id="2_cuaw5"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cuaw5"]
 bg_color = Color(0.1764706, 0.1764706, 0.1764706, 1)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://d358tex0duum8"]
 
-[ext_resource type="Script" uid="uid://6sdu34jtdrux" path="res://Features/Search/SearchResultComponent.cs" id="1_6ov2c"]
+[ext_resource type="Script" uid="uid://6sdu34jtdrux" path="res://Features/Search/SearchInFiles/SearchResultComponent.cs" id="1_6ov2c"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6ov2c"]
 draw_center = false
