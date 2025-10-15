@@ -167,6 +167,7 @@ public partial class CustomHighlighter : SyntaxHighlighter
             "class name" => CachedColors.ClassGreen,
             "record class name" => CachedColors.ClassGreen,
             "struct name" => CachedColors.ClassGreen,
+            "record struct name" => CachedColors.ClassGreen,
             "interface name" => CachedColors.InterfaceGreen,
             "enum name" => CachedColors.InterfaceGreen,
             "namespace name" => CachedColors.White,
