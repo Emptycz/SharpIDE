@@ -42,6 +42,7 @@ public partial class IdeRoot : Control
 	[Inject] private readonly IdeFileExternalChangeHandler _fileExternalChangeHandler = null!;
 	[Inject] private readonly IdeFileWatcher _fileWatcher = null!;
 	[Inject] private readonly BuildService _buildService = null!;
+    [Inject] private readonly IdeOpenTabsFileManager _openTabsFileManager = null!;
 
 	public override void _EnterTree()
 	{
@@ -52,7 +53,8 @@ public partial class IdeRoot : Control
 
 	public override void _ExitTree()
 	{
-		_fileWatcher.Dispose();
+		_fileWatcher?.Dispose();
+		GetTree().GetRoot().FocusExited -= OnFocusExited;
 	}
 
 	public override void _Ready()
@@ -80,7 +82,14 @@ public partial class IdeRoot : Control
 		_cleanSlnButton.Pressed += OnCleanSlnButtonPressed;
 		_restoreSlnButton.Pressed += OnRestoreSlnButtonPressed;
 		GodotGlobalEvents.Instance.BottomPanelVisibilityChangeRequested.Subscribe(async show => await this.InvokeAsync(() => _invertedVSplitContainer.InvertedSetCollapsed(!show)));
+		GetTree().GetRoot().FocusExited += OnFocusExited;
 		_nodeReadyTcs.SetResult();
+	}
+	
+	// TODO: Problematic, as this is called even when the focus shifts to an embedded subwindow, such as a popup 
+	private void OnFocusExited()
+	{
+		_ = Task.GodotRun(async () => await _openTabsFileManager.SaveAllOpenFilesAsync());
 	}
 
 	private void OnRunMenuButtonPressed()

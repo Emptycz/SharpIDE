@@ -1,7 +1,10 @@
 using Godot;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
+using SharpIDE.Godot.Features.Build;
+using SharpIDE.Godot.Features.Debug_;
 using SharpIDE.Godot.Features.IdeDiagnostics;
 using SharpIDE.Godot.Features.Problems;
+using SharpIDE.Godot.Features.Run;
 
 namespace SharpIDE.Godot.Features.BottomPanel;
 
@@ -17,9 +20,9 @@ public partial class BottomPanelManager : Panel
         }
     }
 
-    private Control _runPanel = null!;
-    private Control _debugPanel = null!;
-    private Control _buildPanel = null!;
+    private RunPanel _runPanel = null!;
+    private DebugPanel _debugPanel = null!;
+    private BuildPanel _buildPanel = null!;
     private ProblemsPanel _problemsPanel = null!;
     private IdeDiagnosticsPanel _ideDiagnosticsPanel = null!;
 
@@ -27,9 +30,9 @@ public partial class BottomPanelManager : Panel
     
     public override void _Ready()
     {
-        _runPanel = GetNode<Control>("%RunPanel");
-        _debugPanel = GetNode<Control>("%DebugPanel");
-        _buildPanel = GetNode<Control>("%BuildPanel");
+        _runPanel = GetNode<RunPanel>("%RunPanel");
+        _debugPanel = GetNode<DebugPanel>("%DebugPanel");
+        _buildPanel = GetNode<BuildPanel>("%BuildPanel");
         _problemsPanel = GetNode<ProblemsPanel>("%ProblemsPanel");
         _ideDiagnosticsPanel = GetNode<IdeDiagnosticsPanel>("%IdeDiagnosticsPanel");
         

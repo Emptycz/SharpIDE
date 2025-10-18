@@ -14,18 +14,19 @@ public class InjectAttribute : Attribute;
 public partial class DiAutoload : Node
 {
     private ServiceProvider? _serviceProvider;
+    private IServiceScope? _currentScope;
 
     public override void _EnterTree()
     {
         GD.Print("[Injector] _EnterTree called");
         var services = new ServiceCollection();
         // Register services here
-        services.AddSingleton<BuildService>();
-        services.AddSingleton<RunService>();
-        services.AddSingleton<IdeFileExternalChangeHandler>();
-        services.AddSingleton<IdeFileSavedToDiskHandler>();
-        services.AddSingleton<IdeFileWatcher>();
-        services.AddSingleton<IdeOpenTabsFileManager>();
+        services.AddScoped<BuildService>();
+        services.AddScoped<RunService>();
+        services.AddScoped<IdeFileExternalChangeHandler>();
+        services.AddScoped<IdeFileSavedToDiskHandler>();
+        services.AddScoped<IdeFileWatcher>();
+        services.AddScoped<IdeOpenTabsFileManager>();
 
         _serviceProvider = services.BuildServiceProvider();
         GetTree().NodeAdded += OnNodeAdded;
@@ -35,6 +36,13 @@ public partial class DiAutoload : Node
     public override void _Ready()
     {
         
+    }
+
+    /// The solution has changed, so reset the scope to get new services
+    public void ResetScope()
+    {
+        _currentScope?.Dispose();
+        _currentScope = _serviceProvider!.CreateScope();
     }
 
     private void OnNodeAdded(Node node)
@@ -52,11 +60,18 @@ public partial class DiAutoload : Node
         {
             if (Attribute.IsDefined(field, typeof(InjectAttribute)))
             {
-                var service = _serviceProvider!.GetService(field.FieldType);
+                if (_currentScope is null)
+                {
+                    GD.PrintErr("[Injector] _currentScope was null when attempting to resolve service");
+                    GetTree().Quit();
+                    return;
+                }
+                var service = _currentScope!.ServiceProvider.GetService(field.FieldType);
                 if (service is null)
                 {
                     GD.PrintErr($"[Injector] No service registered for {field.FieldType}");
                     GetTree().Quit();
+                    return;
                 }
 
                 field.SetValue(target, service);

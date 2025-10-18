@@ -21,8 +21,6 @@ public partial class IdeWindow : Control
     private IdeRoot? _ideRoot;
     private SlnPicker? _slnPicker;
     
-    [Inject] private readonly IdeOpenTabsFileManager _openTabsFileManager = null!;
-
     public override void _Ready()
     {
         GD.Print("IdeWindow _Ready called");
@@ -31,7 +29,6 @@ public partial class IdeWindow : Control
         MSBuildLocator.RegisterDefaults();
         GodotServiceDefaults.AddServiceDefaults();
         Singletons.AppState = AppStateLoader.LoadAppStateFromConfigFile();
-        GetWindow().FocusExited += OnFocusExited;
         //GetWindow().SetMinSize(new Vector2I(1152, 648));
         Callable.From(() => PickSolution(true)).CallDeferred();
     }
@@ -45,12 +42,6 @@ public partial class IdeWindow : Control
         // GC.WaitForPendingFinalizers();
         // GC.Collect();
         // PrintOrphanNodes();
-    }
-    
-    // TODO: Problematic, as this is called even when the focus shifts to an embedded subwindow, such as a popup 
-    private void OnFocusExited()
-    {
-        _ = Task.GodotRun(async () => await _openTabsFileManager.SaveAllOpenFilesAsync());
     }
     
     public void PickSolution(bool fullscreen = false)
@@ -109,7 +100,8 @@ public partial class IdeWindow : Control
                 { 
                     GetWindow().Mode = Window.ModeEnum.Maximized;
                 }
-                _ideRoot = ideRoot;
+                _ideRoot = ideRoot; // This has no DI services, until it is added to the scene tree
+                GetNode<DiAutoload>("/root/DiAutoload").ResetScope();
                 AddChild(ideRoot);
             });
         });
