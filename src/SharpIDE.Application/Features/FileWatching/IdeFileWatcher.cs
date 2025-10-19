@@ -73,9 +73,16 @@ public sealed class IdeFileWatcher : IDisposable
 
 	private void HandleCreated(string fullPath)
 	{
-		if (Path.HasExtension(fullPath) is false) return; // we don't care about directory changes
+		var isDirectory = Path.HasExtension(fullPath) is false;
+		if (isDirectory)
+		{
+			GlobalEvents.Instance.FileSystemWatcherInternal.DirectoryCreated.InvokeParallelFireAndForget(fullPath);
+		}
+		else
+		{
+			GlobalEvents.Instance.FileSystemWatcherInternal.FileCreated.InvokeParallelFireAndForget(fullPath);
+		}
 		//Console.WriteLine($"FileSystemWatcher: Created - {fullPath}");
-		GlobalEvents.Instance.FileSystemWatcherInternal.FileCreated.InvokeParallelFireAndForget(fullPath);
 	}
 
 	// The only changed event we care about is files, not directories

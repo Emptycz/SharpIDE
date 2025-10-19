@@ -14,6 +14,28 @@ public class IdeFileExternalChangeHandler
 		_fileChangedService = fileChangedService;
 		GlobalEvents.Instance.FileSystemWatcherInternal.FileChanged.Subscribe(OnFileChanged);
 		GlobalEvents.Instance.FileSystemWatcherInternal.FileCreated.Subscribe(OnFileCreated);
+		GlobalEvents.Instance.FileSystemWatcherInternal.DirectoryCreated.Subscribe(OnFolderCreated);
+	}
+
+	private async Task OnFolderCreated(string folderPath)
+	{
+		var sharpIdeFolder = SolutionModel.AllFolders.SingleOrDefault(f => f.Path == folderPath);
+		if (sharpIdeFolder is not null)
+		{
+			Console.WriteLine($"Error - Folder {folderPath} already exists");
+			return;
+		}
+		var containingFolderPath = Path.GetDirectoryName(folderPath)!;
+		var containingFolder = SolutionModel.AllFolders.SingleOrDefault(f => f.Path == containingFolderPath);
+		if (containingFolder is null)
+		{
+			Console.WriteLine($"Error - Containing Folder of {folderPath} does not exist");
+			return;
+		}
+		// Passing [] to allFiles and allFolders, as we assume that a brand new folder has no subfolders or files yet
+		sharpIdeFolder = new SharpIdeFolder(new DirectoryInfo(folderPath), containingFolder, [], []);
+		containingFolder.Folders.Add(sharpIdeFolder);
+		SolutionModel.AllFolders.Add(sharpIdeFolder);
 	}
 
 	private async Task OnFileCreated(string filePath)

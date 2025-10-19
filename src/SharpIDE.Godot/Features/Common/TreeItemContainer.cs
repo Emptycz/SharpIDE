@@ -1,7 +1,6 @@
 ﻿using System.Collections.Specialized;
 using Godot;
 using ObservableCollections;
-using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 
 namespace SharpIDE.Godot.Features.Common;
 
