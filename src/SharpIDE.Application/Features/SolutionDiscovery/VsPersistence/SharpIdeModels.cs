@@ -15,7 +15,7 @@ public interface IExpandableSharpIdeNode
 	public bool Expanded { get; set; }
 }
 
-public interface IFolderOrProject
+public interface IFolderOrProject : IExpandableSharpIdeNode
 {
 	public ObservableHashSet<SharpIdeFolder> Folders { get; init; }
 	public ObservableHashSet<SharpIdeFile> Files { get; init; }
@@ -84,12 +84,12 @@ public class SharpIdeSolutionFolder : ISharpIdeNode, IExpandableSharpIdeNode, IC
 		Projects = new ObservableHashSet<SharpIdeProjectModel>(intermediateModel.Projects.Select(x => new SharpIdeProjectModel(x, allProjects, allFiles, allFolders, this)));
 	}
 }
-public class SharpIdeProjectModel : ISharpIdeNode, IExpandableSharpIdeNode, IChildSharpIdeNode
+public class SharpIdeProjectModel : ISharpIdeNode, IExpandableSharpIdeNode, IChildSharpIdeNode, IFolderOrProject
 {
 	public required string Name { get; set; }
 	public required string FilePath { get; set; }
-	public required ObservableHashSet<SharpIdeFolder> Folders { get; set; }
-	public required ObservableHashSet<SharpIdeFile> Files { get; set; }
+	public required ObservableHashSet<SharpIdeFolder> Folders { get; init; }
+	public required ObservableHashSet<SharpIdeFile> Files { get; init; }
 	public bool Expanded { get; set; }
 	public required IExpandableSharpIdeNode Parent { get; set; }
 	public bool Running { get; set; }

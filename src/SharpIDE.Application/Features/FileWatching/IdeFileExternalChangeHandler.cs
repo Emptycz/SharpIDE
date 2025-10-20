@@ -53,25 +53,25 @@ public class IdeFileExternalChangeHandler
 	{
 		// Create a new sharpIdeFile, update SolutionModel
 		var sharpIdeFile = SolutionModel.AllFiles.SingleOrDefault(f => f.Path == filePath);
-		if (sharpIdeFile == null)
+		if (sharpIdeFile is not null)
 		{
-			// If sharpIdeFile is null, it means the file was created externally, and we need to create it and add it to the solution model
-			var createdFileDirectory = Path.GetDirectoryName(filePath)!;
-
-			// TODO: Handle being contained by a project directly
-			//var containingProject = SolutionModel.AllProjects.SingleOrDefault(p => createdFileDirectory == Path.GetDirectoryName(p.FilePath));
-			var containingFolder = SolutionModel.AllFolders.SingleOrDefault(f => f.Path == createdFileDirectory);
-			if (containingFolder is null)
-			{
-				// TODO: Create the folder and add it to the solution model
-			}
-
-			sharpIdeFile = new SharpIdeFile(filePath, Path.GetFileName(filePath), containingFolder, []);
-			containingFolder.Files.Add(sharpIdeFile);
-			SolutionModel.AllFiles.Add(sharpIdeFile);
-			// sharpIdeFile = TODO;
+			// It was likely already created via a parent folder creation
+			return;
 		}
-		Guard.Against.Null(sharpIdeFile, nameof(sharpIdeFile));
+		// If sharpIdeFile is null, it means the file was created externally, and we need to create it and add it to the solution model
+		var createdFileDirectory = Path.GetDirectoryName(filePath)!;
+
+		var containingFolderOrProject = (IFolderOrProject?)SolutionModel.AllFolders.SingleOrDefault(f => f.Path == createdFileDirectory) ?? SolutionModel.AllProjects.SingleOrDefault(s => s.FilePath == createdFileDirectory);
+		if (containingFolderOrProject is null)
+		{
+			Console.WriteLine($"Error - Containing Folder or Project of {filePath} does not exist");
+			return;
+		}
+
+		sharpIdeFile = new SharpIdeFile(filePath, Path.GetFileName(filePath), containingFolderOrProject, []);
+		containingFolderOrProject.Files.Add(sharpIdeFile);
+		SolutionModel.AllFiles.Add(sharpIdeFile);
+
 		await _fileChangedService.SharpIdeFileAdded(sharpIdeFile, await File.ReadAllTextAsync(filePath));
 	}
 

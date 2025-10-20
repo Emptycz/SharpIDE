@@ -22,6 +22,10 @@ public class SharpIdeSolutionModificationService(FileChangedService fileChangedS
 		parentFolder.Folders.Add(sharpIdeFolder);
 		SolutionModel.AllFolders.AddRange((IEnumerable<SharpIdeFolder>)[sharpIdeFolder, ..allFolders]);
 		SolutionModel.AllFiles.AddRange(allFiles);
+		foreach (var file in allFiles)
+		{
+			await _fileChangedService.SharpIdeFileAdded(file, await File.ReadAllTextAsync(file.Path));
+		}
 		return sharpIdeFolder;
 	}
 
