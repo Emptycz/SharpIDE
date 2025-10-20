@@ -1,21 +1,27 @@
-﻿using SharpIDE.Application.Features.SolutionDiscovery;
+﻿using System.Collections.Concurrent;
+using Microsoft.CodeAnalysis;
+using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 
 namespace SharpIDE.Application.Features.FileWatching;
 
 /// Does not do any file system operations, only modifies the in-memory solution model
-public class SharpIdeSolutionModificationService
+public class SharpIdeSolutionModificationService(FileChangedService fileChangedService)
 {
+	private readonly FileChangedService _fileChangedService = fileChangedService;
+
 	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
 
 	/// The directory must already exist on disk
 	public async Task<SharpIdeFolder> AddDirectory(SharpIdeFolder parentFolder, string directoryName)
 	{
-		// Passing [] to allFiles and allFolders, as we assume that a brand new folder has no subfolders or files yet
 		var addedDirectoryPath = Path.Combine(parentFolder.Path, directoryName);
-		var sharpIdeFolder = new SharpIdeFolder(new DirectoryInfo(addedDirectoryPath), parentFolder, [], []);
+		var allFiles = new ConcurrentBag<SharpIdeFile>();
+		var allFolders = new ConcurrentBag<SharpIdeFolder>();
+		var sharpIdeFolder = new SharpIdeFolder(new DirectoryInfo(addedDirectoryPath), parentFolder, allFiles, allFolders);
 		parentFolder.Folders.Add(sharpIdeFolder);
-		SolutionModel.AllFolders.Add(sharpIdeFolder);
+		SolutionModel.AllFolders.AddRange((IEnumerable<SharpIdeFolder>)[sharpIdeFolder, ..allFolders]);
+		SolutionModel.AllFiles.AddRange(allFiles);
 		return sharpIdeFolder;
 	}
 
@@ -23,6 +29,30 @@ public class SharpIdeSolutionModificationService
 	{
 		var parentFolderOrProject = (IFolderOrProject)folder.Parent;
 		parentFolderOrProject.Folders.Remove(folder);
-		SolutionModel.AllFolders.Remove(folder);
+
+		// Also remove all child files and folders from SolutionModel.AllFiles and AllFolders
+		var foldersToRemove = new List<SharpIdeFolder>();
+
+		var stack = new Stack<SharpIdeFolder>();
+		stack.Push(folder);
+		while (stack.Count > 0)
+		{
+			var current = stack.Pop();
+			foldersToRemove.Add(current);
+
+			foreach (var subfolder in current.Folders)
+			{
+				stack.Push(subfolder);
+			}
+		}
+
+		var filesToRemove = foldersToRemove.SelectMany(f => f.Files).ToList();
+
+		SolutionModel.AllFiles.RemoveRange(filesToRemove);
+		SolutionModel.AllFolders.RemoveRange(foldersToRemove);
+		foreach (var file in filesToRemove)
+		{
+			await _fileChangedService.SharpIdeFileRemoved(file);
+		}
 	}
 }

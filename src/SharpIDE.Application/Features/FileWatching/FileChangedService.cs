@@ -32,6 +32,14 @@ public class FileChangedService(RoslynAnalysis roslynAnalysis, IdeOpenTabsFileMa
 		// TODO: handle csproj added
 	}
 
+	public async Task SharpIdeFileRemoved(SharpIdeFile file)
+	{
+		if (file.IsRoslynWorkspaceFile)
+		{
+			await HandleWorkspaceFileRemoved(file);
+		}
+	}
+
 	// All file changes should go via this service
 	public async Task SharpIdeFileChanged(SharpIdeFile file, string newContents, FileChangeType changeType)
 	{
@@ -103,6 +111,17 @@ public class FileChangedService(RoslynAnalysis roslynAnalysis, IdeOpenTabsFileMa
 		await oldCts.CancelAsync();
 		oldCts.Dispose();
 		await _roslynAnalysis.AddDocument(file, contents);
+		GlobalEvents.Instance.SolutionAltered.InvokeParallelFireAndForget();
+		await _roslynAnalysis.UpdateSolutionDiagnostics(newCts.Token);
+	}
+
+	private async Task HandleWorkspaceFileRemoved(SharpIdeFile file)
+	{
+		var newCts = new CancellationTokenSource();
+		var oldCts = Interlocked.Exchange(ref _updateSolutionDiagnosticsCts, newCts);
+		await oldCts.CancelAsync();
+		oldCts.Dispose();
+		await _roslynAnalysis.RemoveDocument(file);
 		GlobalEvents.Instance.SolutionAltered.InvokeParallelFireAndForget();
 		await _roslynAnalysis.UpdateSolutionDiagnostics(newCts.Token);
 	}

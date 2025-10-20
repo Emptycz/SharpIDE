@@ -749,12 +749,48 @@ public class RoslynAnalysis
 
 		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == ((IChildSharpIdeNode)fileModel).GetNearestProjectNode()!.FilePath);
 
+		var existingDocument = fileModel switch
+		{
+			{ IsRazorFile: true } => project.AdditionalDocuments.SingleOrDefault(s => s.FilePath == fileModel.Path),
+			{ IsCsharpFile: true } => project.Documents.SingleOrDefault(s => s.FilePath == fileModel.Path),
+			_ => throw new InvalidOperationException("AddDocument failed: File is not a workspace file")
+		};
+		if (existingDocument is not null)
+		{
+			throw new InvalidOperationException($"AddDocument failed: Document '{fileModel.Path}' already exists in workspace");
+		}
+
 		var sourceText = SourceText.From(content, Encoding.UTF8);
 
 		var newSolution = fileModel switch
 		{
 			{ IsRazorFile: true } => _workspace.CurrentSolution.AddAdditionalDocument(DocumentId.CreateNewId(project.Id), fileModel.Name, sourceText, filePath: fileModel.Path),
 			{ IsCsharpFile: true } => _workspace.CurrentSolution.AddDocument(DocumentId.CreateNewId(project.Id), fileModel.Name, sourceText, filePath: fileModel.Path),
+			_ => throw new InvalidOperationException("AddDocument failed: File is not in workspace")
+		};
+
+		_workspace.TryApplyChanges(newSolution);
+	}
+
+	public async Task RemoveDocument(SharpIdeFile fileModel)
+	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(AddDocument)}");
+		await _solutionLoadedTcs.Task;
+		Guard.Against.Null(fileModel, nameof(fileModel));
+
+		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == ((IChildSharpIdeNode)fileModel).GetNearestProjectNode()!.FilePath);
+
+		var document = fileModel switch
+		{
+			{ IsRazorFile: true } => project.AdditionalDocuments.Single(s => s.FilePath == fileModel.Path),
+			{ IsCsharpFile: true } => project.Documents.Single(s => s.FilePath == fileModel.Path),
+			_ => throw new InvalidOperationException("UpdateDocument failed: File is not in workspace")
+		};
+
+		var newSolution = fileModel switch
+		{
+			{ IsRazorFile: true } => _workspace.CurrentSolution.RemoveAdditionalDocument(document.Id),
+			{ IsCsharpFile: true } => _workspace.CurrentSolution.RemoveDocument(document.Id),
 			_ => throw new InvalidOperationException("AddDocument failed: File is not in workspace")
 		};
 
