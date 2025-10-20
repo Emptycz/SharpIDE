@@ -15,10 +15,11 @@ public interface IExpandableSharpIdeNode
 	public bool Expanded { get; set; }
 }
 
-public interface IFolderOrProject : IExpandableSharpIdeNode
+public interface IFolderOrProject : IExpandableSharpIdeNode, IChildSharpIdeNode
 {
 	public ObservableHashSet<SharpIdeFolder> Folders { get; init; }
 	public ObservableHashSet<SharpIdeFile> Files { get; init; }
+	public string Name { get; set; }
 }
 public interface IChildSharpIdeNode
 {

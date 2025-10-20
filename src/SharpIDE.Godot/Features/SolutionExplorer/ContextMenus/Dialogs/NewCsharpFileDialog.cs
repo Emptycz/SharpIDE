@@ -72,7 +72,7 @@ public partial class NewCsharpFileDialog : ConfirmationDialog
 
         _ = Task.GodotRun(async () =>
         {
-           await _ideFileOperationsService.CreateCsFile(ParentFolder, fileName, "asdf");
+           await _ideFileOperationsService.CreateCsFile(ParentFolder, fileName);
         });
         QueueFree();
     }

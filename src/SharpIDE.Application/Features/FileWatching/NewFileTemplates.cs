@@ -1,4 +1,7 @@
-﻿namespace SharpIDE.Application.Features.FileWatching;
+﻿using SharpIDE.Application.Features.SolutionDiscovery;
+using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
+
+namespace SharpIDE.Application.Features.FileWatching;
 
 public static class NewFileTemplates
 {
@@ -13,5 +16,18 @@ public static class NewFileTemplates
 		           }
 		           """;
 		return text;
+	}
+
+	public static string ComputeNamespace(SharpIdeFolder folder)
+	{
+		var names = new List<string>();
+		IFolderOrProject? current = folder;
+		while (current is not null)
+		{
+			names.Add(current.Name);
+			current = current.Parent as IFolderOrProject;
+		}
+		names.Reverse();
+		return string.Join('.', names);
 	}
 }
