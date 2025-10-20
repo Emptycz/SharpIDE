@@ -116,13 +116,12 @@ public partial class SolutionExplorerPanel : MarginContainer
 	        })).AddTo(this);
 
 	    // Observe Solution Folders
-	    var foldersView = solution.SlnFolders
-		    .WithInitialPopulation(s => CreateSlnFolderTreeItem(_tree, _rootItem, s))
-		    .CreateView(y => new TreeItemContainer());
+	    var foldersView = solution.SlnFolders.CreateView(y => new TreeItemContainer());
+	    foldersView.Unfiltered.ToList().ForEach(s => s.View.Value = CreateSlnFolderTreeItem(_tree, rootItem, s.Value));
 	    foldersView.ObserveChanged()
 	        .SubscribeAwait(async (e, ct) => await (e.Action switch
 	        {
-	            NotifyCollectionChangedAction.Add => this.InvokeAsync(() => CreateSlnFolderTreeItem(_tree, _rootItem, e)),
+	            NotifyCollectionChangedAction.Add => this.InvokeAsync(() => e.NewItem.View.Value = CreateSlnFolderTreeItem(_tree, _rootItem, e.NewItem.Value)),
 	            NotifyCollectionChangedAction.Remove => FreeTreeItem(e.OldItem.View.Value),
 	            _ => Task.CompletedTask
 	        })).AddTo(this);
@@ -132,27 +131,26 @@ public partial class SolutionExplorerPanel : MarginContainer
 	}
 
 	[RequiresGodotUiThread]
-	private void CreateSlnFolderTreeItem(Tree tree, TreeItem parent, ViewChangedEvent<SharpIdeSolutionFolder, TreeItemContainer> e)
+	private TreeItem CreateSlnFolderTreeItem(Tree tree, TreeItem parent, SharpIdeSolutionFolder slnFolder)
 	{
 	    var folderItem = tree.CreateItem(parent);
-	        folderItem.SetText(0, e.NewItem.Value.Name);
+	        folderItem.SetText(0, slnFolder.Name);
 	        folderItem.SetIcon(0, SlnFolderIcon);
-	        folderItem.SetMetadata(0, new RefCountedContainer<SharpIdeSolutionFolder>(e.NewItem.Value));
-	        e.NewItem.View.Value = folderItem;
+	        folderItem.SetMetadata(0, new RefCountedContainer<SharpIdeSolutionFolder>(slnFolder));
 
 	        // Observe folder sub-collections
-	        var subFoldersView = e.NewItem.Value.Folders
-		        .WithInitialPopulation(s => CreateSlnFolderTreeItem(_tree, folderItem, s))
-		        .CreateView(y => new TreeItemContainer());
+	        var subFoldersView = slnFolder.Folders.CreateView(y => new TreeItemContainer());
+	        subFoldersView.Unfiltered.ToList().ForEach(s => s.View.Value = CreateSlnFolderTreeItem(_tree, folderItem, s.Value));
+	        
 	        subFoldersView.ObserveChanged()
 	            .SubscribeAwait(async (innerEvent, ct) => await (innerEvent.Action switch
 	            {
-	                NotifyCollectionChangedAction.Add => this.InvokeAsync(() => CreateSlnFolderTreeItem(_tree, folderItem, innerEvent)),
+	                NotifyCollectionChangedAction.Add => this.InvokeAsync(() => innerEvent.NewItem.View.Value = CreateSlnFolderTreeItem(_tree, folderItem, innerEvent.NewItem.Value)),
 	                NotifyCollectionChangedAction.Remove => FreeTreeItem(innerEvent.OldItem.View.Value),
 	                _ => Task.CompletedTask
 	            })).AddTo(this);
 
-	        var projectsView = e.NewItem.Value.Projects.CreateView(y => new TreeItemContainer());
+	        var projectsView = slnFolder.Projects.CreateView(y => new TreeItemContainer());
 	        projectsView.Unfiltered.ToList().ForEach(s => s.View.Value = CreateProjectTreeItem(_tree, folderItem, s.Value));
 	        projectsView.ObserveChanged()
 	            .SubscribeAwait(async (innerEvent, ct) => await (innerEvent.Action switch
@@ -162,7 +160,7 @@ public partial class SolutionExplorerPanel : MarginContainer
 	                _ => Task.CompletedTask
 	            })).AddTo(this);
 
-	        var filesView = e.NewItem.Value.Files
+	        var filesView = slnFolder.Files
 		        .WithInitialPopulation(s => CreateFileTreeItem(_tree, folderItem, s))
 		        .CreateView(y => new TreeItemContainer());
 	        filesView.ObserveChanged()
@@ -172,6 +170,7 @@ public partial class SolutionExplorerPanel : MarginContainer
 	                NotifyCollectionChangedAction.Remove => FreeTreeItem(innerEvent.OldItem.View.Value),
 	                _ => Task.CompletedTask
 	            })).AddTo(this);
+	        return folderItem;
 	}
 
 	[RequiresGodotUiThread]
