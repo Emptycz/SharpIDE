@@ -28,7 +28,8 @@ public partial class SolutionExplorerPanel : MarginContainer
 	private Tree _tree = null!;
 	private TreeItem _rootItem = null!;
 	private enum ClipboardOperation { Cut, Copy }
-	private (SharpIdeFile, ClipboardOperation)? _itemOnClipboard;
+
+	private (List<SharpIdeFile>, ClipboardOperation)? _itemsOnClipboard;
 	public override void _Ready()
 	{
 		_tree = GetNode<Tree>("Tree");
@@ -41,7 +42,7 @@ public partial class SolutionExplorerPanel : MarginContainer
 		// Copy
 		if (@event is InputEventKey { Pressed: true, Keycode: Key.C, CtrlPressed: true })
 		{
-			CopySelectedNodeToSlnExplorerClipboard();
+			CopySelectedNodesToSlnExplorerClipboard();
 		}
 		// Cut
 		else if (@event is InputEventKey { Pressed: true, Keycode: Key.X, CtrlPressed: true })
@@ -53,12 +54,21 @@ public partial class SolutionExplorerPanel : MarginContainer
 		{
 			CopyNodeFromClipboardToSelectedNode();
 		}
+		else if (@event is InputEventKey { Pressed: true, Keycode: Key.Delete })
+		{
+			// TODO: DeleteSelectedNodes();
+		}
+		else if (@event is InputEventKey { Pressed: true, Keycode: Key.Escape })
+		{
+			ClearSlnExplorerClipboard();
+		}
 	}
 
 	private void TreeOnItemMouseSelected(Vector2 mousePosition, long mouseButtonIndex)
 	{
 		var selected = _tree.GetSelected();
 		if (selected is null) return;
+		if (HasMultipleNodesSelected()) return;
 		
 		var mouseButtonMask = (MouseButtonMask)mouseButtonIndex;
 

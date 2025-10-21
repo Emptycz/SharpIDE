@@ -7,37 +7,54 @@ namespace SharpIDE.Godot.Features.SolutionExplorer;
 
 public partial class SolutionExplorerPanel
 {
-    private void CopySelectedNodeToSlnExplorerClipboard()
+    private void CopySelectedNodesToSlnExplorerClipboard() => AddSelectedNodesToSlnExplorerClipboard(ClipboardOperation.Copy);
+    private void CutSelectedNodeToSlnExplorerClipboard() => AddSelectedNodesToSlnExplorerClipboard(ClipboardOperation.Cut);
+    private void AddSelectedNodesToSlnExplorerClipboard(ClipboardOperation clipboardOperation)
     {
-        var selected = _tree.GetSelected();
-        if (selected is null) return;
-        var genericMetadata = selected.GetMetadata(0).As<RefCounted?>();
-        if (genericMetadata is RefCountedContainer<SharpIdeFile> fileContainer)
-        {
-            _itemOnClipboard = (fileContainer.Item, ClipboardOperation.Copy);
-        }
+        var selectedItems = GetSelectedTreeItems();
+        if (selectedItems.Count is 0) return;
+        _itemsOnClipboard = (selectedItems
+            .Select(item => item.GetMetadata(0).As<RefCounted?>())
+            .OfType<RefCountedContainer<SharpIdeFile>>()
+            .Select(s => s.Item)
+            .ToList(),
+            ClipboardOperation.Copy);
     }
     
-    private void CutSelectedNodeToSlnExplorerClipboard()
+    private List<TreeItem> GetSelectedTreeItems()
     {
-        var selected = _tree.GetSelected();
-        if (selected is null) return;
-        var genericMetadata = selected.GetMetadata(0).As<RefCounted?>();
-        if (genericMetadata is RefCountedContainer<SharpIdeFile> fileContainer)
+        var selectedItems = new List<TreeItem>();
+        var currentItem = _tree.GetNextSelected(null);
+        while (currentItem != null)
         {
-            _itemOnClipboard = (fileContainer.Item, ClipboardOperation.Cut);
+            selectedItems.Add(currentItem);
+            currentItem = _tree.GetNextSelected(currentItem);
         }
+        return selectedItems;
+    }
+    
+    private bool HasMultipleNodesSelected()
+    {
+        var selectedCount = 0;
+        var currentItem = _tree.GetNextSelected(null);
+        while (currentItem != null)
+        {
+            selectedCount++;
+            if (selectedCount > 1) return true;
+            currentItem = _tree.GetNextSelected(currentItem);
+        }
+        return false;
     }
     
     private void ClearSlnExplorerClipboard()
     {
-        _itemOnClipboard = null;
+        _itemsOnClipboard = null;
     }
 
     private void CopyNodeFromClipboardToSelectedNode()
     {
         var selected = _tree.GetSelected();
-        if (selected is null || _itemOnClipboard is null) return;
+        if (selected is null || _itemsOnClipboard is null) return;
         var genericMetadata = selected.GetMetadata(0).As<RefCounted?>();
         IFolderOrProject? folderOrProject = genericMetadata switch
         {
@@ -47,13 +64,16 @@ public partial class SolutionExplorerPanel
         };
         if (folderOrProject is null) return;
 			
-        var (fileToPaste, operation) = _itemOnClipboard.Value;
-        _itemOnClipboard = null;
+        var (filesToPaste, operation) = _itemsOnClipboard.Value;
+        _itemsOnClipboard = null;
         _ = Task.GodotRun(async () =>
         {
             if (operation is ClipboardOperation.Copy)
             {
-                await _ideFileOperationsService.CopyFile(folderOrProject, fileToPaste.Path, fileToPaste.Name);
+                foreach (var fileToPaste in filesToPaste)
+                {
+                    await _ideFileOperationsService.CopyFile(folderOrProject, fileToPaste.Path, fileToPaste.Name);
+                }
             }
         });
     }
