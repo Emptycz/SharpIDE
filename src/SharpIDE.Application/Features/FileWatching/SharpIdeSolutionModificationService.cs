@@ -151,4 +151,14 @@ public class SharpIdeSolutionModificationService(FileChangedService fileChangedS
 		await _fileChangedService.SharpIdeFileMoved(fileToMove, oldPath);
 		return fileToMove;
 	}
+
+	public async Task<SharpIdeFile> RenameFile(SharpIdeFile fileToRename, string renamedFileName)
+	{
+		var oldPath = fileToRename.Path;
+		var newFilePath = Path.Combine(Path.GetDirectoryName(oldPath)!, renamedFileName);
+		fileToRename.Name = renamedFileName;
+		fileToRename.Path = newFilePath;
+		await _fileChangedService.SharpIdeFileRenamed(fileToRename, oldPath);
+		return fileToRename;
+	}
 }

@@ -803,4 +803,11 @@ public class RoslynAnalysis
 		var updatedSolution = _workspace.CurrentSolution.WithDocumentFilePath(document, sharpIdeFile.Path);
 		_workspace.TryApplyChanges(updatedSolution);
 	}
+
+	public async Task RenameDocument(SharpIdeFile sharpIdeFile, string oldFilePath)
+	{
+		var documentId = _workspace!.CurrentSolution.GetDocumentIdsWithFilePath(oldFilePath).Single();
+		var updatedSolution = _workspace.CurrentSolution.WithDocumentName(documentId, sharpIdeFile.Name);
+		_workspace.TryApplyChanges(updatedSolution);
+	}
 }

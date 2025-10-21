@@ -16,9 +16,25 @@ public class IdeFileExternalChangeHandler
 		_sharpIdeSolutionModificationService = sharpIdeSolutionModificationService;
 		GlobalEvents.Instance.FileSystemWatcherInternal.FileChanged.Subscribe(OnFileChanged);
 		GlobalEvents.Instance.FileSystemWatcherInternal.FileCreated.Subscribe(OnFileCreated);
+		GlobalEvents.Instance.FileSystemWatcherInternal.FileDeleted.Subscribe(OnFileDeleted);
+		GlobalEvents.Instance.FileSystemWatcherInternal.FileRenamed.Subscribe(OnFileRenamed);
 		GlobalEvents.Instance.FileSystemWatcherInternal.DirectoryCreated.Subscribe(OnFolderCreated);
 		GlobalEvents.Instance.FileSystemWatcherInternal.DirectoryDeleted.Subscribe(OnFolderDeleted);
 		GlobalEvents.Instance.FileSystemWatcherInternal.DirectoryRenamed.Subscribe(OnFolderRenamed);
+	}
+
+	private async Task OnFileRenamed(string oldFilePath, string newFilePath)
+	{
+		var sharpIdeFile = SolutionModel.AllFiles.SingleOrDefault(f => f.Path == oldFilePath);
+		if (sharpIdeFile is null) return;
+		await _sharpIdeSolutionModificationService.RenameFile(sharpIdeFile, Path.GetFileName(newFilePath));
+	}
+
+	private async Task OnFileDeleted(string filePath)
+	{
+		var sharpIdeFile = SolutionModel.AllFiles.SingleOrDefault(f => f.Path == filePath);
+		if (sharpIdeFile is null) return;
+		await _sharpIdeSolutionModificationService.RemoveFile(sharpIdeFile);
 	}
 
 	// TODO: Test - this most likely only will ever be called on linux - windows and macos(?) does delete + create on rename of folders

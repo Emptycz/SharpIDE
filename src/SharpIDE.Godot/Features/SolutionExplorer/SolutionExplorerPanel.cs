@@ -282,6 +282,13 @@ public partial class SolutionExplorerPanel : MarginContainer
 		fileItem.SetText(0, sharpIdeFile.Name);
 		fileItem.SetIcon(0, CsharpFileIcon);
 		fileItem.SetMetadata(0, new RefCountedContainer<SharpIdeFile>(sharpIdeFile));
+		
+		Observable.EveryValueChanged(sharpIdeFile, folder => folder.Name)
+			.Skip(1).SubscribeAwait(async (s, ct) =>
+			{
+				await this.InvokeAsync(() => fileItem.SetText(0, s));
+			}).AddTo(this);
+		
 		return fileItem;
 	}
 
