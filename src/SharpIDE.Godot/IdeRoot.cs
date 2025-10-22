@@ -153,14 +153,19 @@ public partial class IdeRoot : Control
 			
 			var previousTabs = Singletons.AppState.RecentSlns.Single(s => s.FilePath == solutionModel.FilePath).IdeSolutionState.OpenTabs;
 			var filesToOpen = previousTabs
-				.Select(s => (solutionModel.AllFiles.Single(f => f.Path == s.FilePath), new SharpIdeFileLinePosition(s.CaretLine, s.CaretColumn)))
+				.Select(s => (solutionModel.AllFiles.Single(f => f.Path == s.FilePath), new SharpIdeFileLinePosition(s.CaretLine, s.CaretColumn), s.IsSelected))
 				.ToList();
 			await this.InvokeDeferredAsync(async () =>
 			{
-				foreach (var (file, linePosition) in filesToOpen)
+				// Preserves order of tabs
+				foreach (var (file, linePosition, isSelected) in filesToOpen)
 				{
 					GodotGlobalEvents.Instance.FileExternallySelected.InvokeParallelFireAndForget(file, linePosition);
+					await Task.Delay(10).ConfigureAwait(false); // TODO: Do this properly - use InvokeParallelAsync, and fix FileExternallySelected waiting on syntax highlighting etc before returning
 				}
+				// Select the selected tab
+				var selectedFile = filesToOpen.SingleOrDefault(f => f.IsSelected);
+				if (selectedFile.Item1 is not null) GodotGlobalEvents.Instance.FileExternallySelected.InvokeParallelFireAndForget(selectedFile.Item1, selectedFile.Item2);
 			});
 				
 			var tasks = solutionModel.AllProjects.Select(p => p.MsBuildEvaluationProjectTask).ToList();

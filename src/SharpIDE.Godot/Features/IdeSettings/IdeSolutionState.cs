@@ -10,4 +10,5 @@ public class OpenTab
     public required string FilePath { get; set; }
     public required int CaretLine { get; set; }
     public required int CaretColumn { get; set; }
+    public required bool IsSelected { get; set; }
 }

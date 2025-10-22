@@ -34,13 +34,15 @@ public partial class CodeEditorPanel : MarginContainer
 
     public override void _ExitTree()
     {
+        var selectedTabIndex = _tabContainer.CurrentTab;
         var thisSolution = Singletons.AppState.RecentSlns.Single(s => s.FilePath == Solution.FilePath);
         thisSolution.IdeSolutionState.OpenTabs = _tabContainer.GetChildren().OfType<SharpIdeCodeEdit>()
-            .Select(t => new OpenTab
+            .Select((t, index) => new OpenTab
             {
                 FilePath = t.SharpIdeFile.Path,
                 CaretLine = t.GetCaretLine(),
-                CaretColumn = t.GetCaretColumn()
+                CaretColumn = t.GetCaretColumn(),
+                IsSelected = index == selectedTabIndex
             })
             .ToList();
     }
@@ -103,8 +105,7 @@ public partial class CodeEditorPanel : MarginContainer
             }).AddTo(newTab); // needs to be on ui thread
         });
         
-        await newTab.SetSharpIdeFile(file);
-        if (fileLinePosition is not null) await this.InvokeAsync(() => newTab.SetFileLinePosition(fileLinePosition.Value));
+        await newTab.SetSharpIdeFile(file, fileLinePosition);
     }
     
     private async Task OnDebuggerExecutionStopped(ExecutionStopInfo executionStopInfo)

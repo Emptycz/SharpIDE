@@ -334,7 +334,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	}
 
 	// TODO: Ensure not running on UI thread
-	public async Task SetSharpIdeFile(SharpIdeFile file)
+	public async Task SetSharpIdeFile(SharpIdeFile file, SharpIdeFileLinePosition? fileLinePosition = null)
 	{
 		await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding); // get off the UI thread
 		_currentFile = file;
@@ -345,11 +345,13 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		var razorSyntaxHighlighting = _roslynAnalysis.GetRazorDocumentSyntaxHighlighting(_currentFile);
 		var diagnostics = _roslynAnalysis.GetDocumentDiagnostics(_currentFile);
 		var projectDiagnosticsForFile = _roslynAnalysis.GetProjectDiagnosticsForFile(_currentFile);
+		await readFileTask;
 		var setTextTask = this.InvokeAsync(async () =>
 		{
 			_fileChangingSuppressBreakpointToggleEvent = true;
 			SetText(await readFileTask);
 			_fileChangingSuppressBreakpointToggleEvent = false;
+			if (fileLinePosition is not null) SetFileLinePosition(fileLinePosition.Value);
 		});
 		await Task.WhenAll(syntaxHighlighting, razorSyntaxHighlighting, setTextTask); // Text must be set before setting syntax highlighting
 		await this.InvokeAsync(async () => SetSyntaxHighlightingModel(await syntaxHighlighting, await razorSyntaxHighlighting));
