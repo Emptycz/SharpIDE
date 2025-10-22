@@ -622,11 +622,12 @@ public class RoslynAnalysis
 		{
 			if (operation is ApplyChangesOperation applyChangesOperation)
 			{
+				// TODO: Handle added and removed documents
 				var newSolution = applyChangesOperation.ChangedSolution;
 				var changedDocIds = newSolution
 					.GetChanges(_workspace!.CurrentSolution)
 					.GetProjectChanges()
-					.SelectMany(s => s.GetChangedDocuments());
+					.SelectMany(s => s.GetChangedDocuments().Concat(s.GetChangedAdditionalDocuments()));
 				changedDocumentIds.AddRange(changedDocIds);
 
 				_workspace.TryApplyChanges(newSolution);
