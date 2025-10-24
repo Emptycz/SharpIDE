@@ -1,12 +1,15 @@
 ﻿using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 using SharpIDE.Application.Features.SolutionDiscovery;
 
 namespace SharpIDE.Application.Features.FilePersistence;
 #pragma warning disable VSTHRD011
 
 /// Holds the in memory copies of files, and manages saving/loading them to/from disk.
-public class IdeOpenTabsFileManager
+public class IdeOpenTabsFileManager(ILogger<IdeOpenTabsFileManager> logger)
 {
+	private readonly ILogger<IdeOpenTabsFileManager> _logger = logger;
+
 	private ConcurrentDictionary<SharpIdeFile, Lazy<Task<string>>> _openFiles = new();
 
 	/// Implicitly 'opens' a file if not already open, and returns the text.
@@ -54,13 +57,13 @@ public class IdeOpenTabsFileManager
 		}
 	}
 
-	private static async Task WriteAllText(SharpIdeFile file, string text)
+	private async Task WriteAllText(SharpIdeFile file, string text)
 	{
 		file.SuppressDiskChangeEvents = true;
 		await File.WriteAllTextAsync(file.Path, text);
-		Console.WriteLine($"Saved file {file.Path}");
 		file.LastIdeWriteTime = DateTimeOffset.Now;
 		file.SuppressDiskChangeEvents = false;
+		_logger.LogInformation("IdeOpenTabsFileManager: Saved file {FilePath}", file.Path);
 	}
 
 	public async Task SaveAllOpenFilesAsync()
