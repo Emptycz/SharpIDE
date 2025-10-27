@@ -10,6 +10,7 @@ public partial class SharpIdeCodeEdit
     private readonly Texture2D _csharpInterfaceIcon = ResourceLoader.Load<Texture2D>("uid://bdwmkdweqvowt");
     private readonly Texture2D _localVariableIcon = ResourceLoader.Load<Texture2D>("uid://vwvkxlnvqqk3");
     private readonly Texture2D _fieldIcon = ResourceLoader.Load<Texture2D>("uid://c4y7d5m4upfju");
+    private readonly Texture2D _propertyIcon = ResourceLoader.Load<Texture2D>("uid://y5pwrwwrjqmc");
 
     private Texture2D? GetIconForCompletion(SymbolKind? symbolKind, TypeKind? typeKind, Accessibility? accessibility)
     {
@@ -20,7 +21,7 @@ public partial class SharpIdeCodeEdit
             (SymbolKind.NamedType, _, _) => _csharpClassIcon,
             (SymbolKind.Local, _, _) => _localVariableIcon,
             (SymbolKind.Field, _, _) => _fieldIcon,
-            //SymbolKind.Property => ,
+            (SymbolKind.Property, _, _) => _propertyIcon,
             _ => null
         };    
         return texture;
