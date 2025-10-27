@@ -589,6 +589,19 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 		return completions;
 	}
 
+	// Currently unused
+	private async Task<bool> ShouldTriggerCompletionAsync(SharpIdeFile file, LinePosition linePosition, CompletionTrigger completionTrigger, CancellationToken cancellationToken = default)
+	{
+		var document = await GetDocumentForSharpIdeFile(file, cancellationToken);
+		var completionService = CompletionService.GetService(document);
+		if (completionService is null) throw new InvalidOperationException("Completion service is not available for the document.");
+
+		var sourceText = await document.GetTextAsync(cancellationToken);
+		var position = sourceText.Lines.GetPosition(linePosition);
+		var shouldTrigger = completionService.ShouldTriggerCompletion(sourceText, position, completionTrigger);
+		return shouldTrigger;
+	}
+
 	public async Task<(string updatedText, SharpIdeFileLinePosition sharpIdeFileLinePosition)> GetCompletionApplyChanges(SharpIdeFile file, CompletionItem completionItem, CancellationToken cancellationToken = default)
 	{
 		var documentId = _workspace!.CurrentSolution.GetDocumentIdsWithFilePath(file.Path).Single();

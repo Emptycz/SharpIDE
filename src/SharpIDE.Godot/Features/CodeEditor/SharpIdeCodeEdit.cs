@@ -174,6 +174,12 @@ public partial class SharpIdeCodeEdit : CodeEdit
 
 	private void OnTextChanged()
 	{
+		var codeCompletionPopupClosed = GetCodeCompletionSelectedIndex() is -1;
+		var shouldShowCodeCompletion = codeCompletionPopupClosed && HasFocus(); // This is a bad solution - it will be triggered on copy paste, undo redo, applying code fixes etc
+		if (codeCompletionPopupClosed)
+		{
+			EmitSignalCodeCompletionRequested();
+		}
 		_ = Task.GodotRun(async () =>
 		{
 			var __ = SharpIdeOtel.Source.StartActivity($"{nameof(SharpIdeCodeEdit)}.{nameof(OnTextChanged)}");
