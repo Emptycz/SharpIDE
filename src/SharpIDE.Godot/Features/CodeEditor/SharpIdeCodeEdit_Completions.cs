@@ -27,6 +27,8 @@ public partial class SharpIdeCodeEdit
             (_, TypeKind.Interface, _) => _csharpInterfaceIcon,
             (_, TypeKind.Enum, _) => _enumIcon,
             (_, TypeKind.Delegate, _) => _delegateIcon,
+            (_, TypeKind.Class, _) => _csharpClassIcon,
+            (_, TypeKind.Struct, _) => _csharpClassIcon,
             (SymbolKind.NamedType, _, _) => _csharpClassIcon,
             (SymbolKind.Local, _, _) => _localVariableIcon,
             (SymbolKind.Field, _, _) => _fieldIcon,
