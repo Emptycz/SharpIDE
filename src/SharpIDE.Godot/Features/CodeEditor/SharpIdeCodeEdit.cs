@@ -54,10 +54,19 @@ public partial class SharpIdeCodeEdit : CodeEdit
     [Inject] private readonly IdeCodeActionService _ideCodeActionService = null!;
     [Inject] private readonly FileChangedService _fileChangedService = null!;
     [Inject] private readonly IdeApplyCompletionService _ideApplyCompletionService = null!;
-	
+
+    private readonly List<string> _codeCompletionTriggers =
+    [
+	    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+	    "_", "<", ".", "#"
+    ];
+
 	public override void _Ready()
 	{
-		CodeCompletionPrefixes = ["."];
+		// _filter_code_completion_candidates_impl uses these prefixes to determine where the completions menu is allowed to show.
+		// It is quite annoying as we cannot override it via _FilterCodeCompletionCandidates, as we would lose the filtering as well.
+		// Currently, it is not possible to show completions on a new line at col 0
+		CodeCompletionPrefixes = [.._codeCompletionTriggers, "(", ",", "=", "\t"];
 		SyntaxHighlighter = _syntaxHighlighter;
 		_popupMenu = GetNode<PopupMenu>("CodeFixesMenu");
 		_popupMenu.IdPressed += OnCodeFixSelected;
@@ -318,6 +327,22 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			UnderlineRange(line, startCol, endCol, color);
 		}
 	}
+
+	// public override Array<Dictionary> _FilterCodeCompletionCandidates(Array<Dictionary> candidates)
+	// {
+	// 	return base._FilterCodeCompletionCandidates(candidates);
+	// }
+
+	// public override void _GuiInput(InputEvent @event)
+	// {
+	// 	if (@event.IsActionPressed("ui_text_completion_query"))
+	// 	{
+	// 		GD.Print("Entering CompletionQueryBuiltin _GuiInput");
+	// 		AcceptEvent();
+	// 		//GetViewport().SetInputAsHandled();
+ //            Callable.From(() => RequestCodeCompletion(true)).CallDeferred();
+	// 	}
+	// }
 
 	public override void _UnhandledKeyInput(InputEvent @event)
 	{
