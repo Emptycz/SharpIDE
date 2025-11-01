@@ -23,7 +23,8 @@ public partial class NugetPanel : Control
         _ = Task.GodotRun(async () =>
         {
             await Task.Delay(300);
-            await _nugetClientService.Test(Solution!.DirectoryPath);
+            var result = await _nugetClientService.GetTop100Results(Solution!.DirectoryPath);
+            ;
         });
     }
 }
