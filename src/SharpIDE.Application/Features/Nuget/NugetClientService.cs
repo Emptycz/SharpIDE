@@ -125,8 +125,6 @@ public class NugetClientService
 			var installedNugetPackageInfo = new InstalledNugetPackageInfo(isTransitive, nugetVersion);
 			var idePackageResult = new IdePackageResult(installedPackage.Name, [], installedNugetPackageInfo);
 
-			var packageIdentity = new PackageIdentity(installedPackage.Name, nugetVersion);
-
 			foreach (var source in packageSources)
 			{
 				var repository = Repository.Factory.GetCoreV3(source.Source);

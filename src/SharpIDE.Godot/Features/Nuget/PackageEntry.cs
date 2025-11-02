@@ -43,6 +43,7 @@ public partial class PackageEntry : MarginContainer
         _latestVersionLabel = GetNode<Label>("%LatestVersionLabel");
         _sourceNamesContainer = GetNode<HBoxContainer>("%SourceNamesHBoxContainer");
         _packageIconTextureRect = GetNode<TextureRect>("%PackageIconTextureRect");
+        _latestVersionLabel.Text = string.Empty;
         ApplyValues();
         _button.Pressed += async () => await PackageSelected.Invoke(PackageResult);
     }
@@ -54,7 +55,10 @@ public partial class PackageEntry : MarginContainer
         _installedVersionLabel.Text = PackageResult.InstalledNugetPackageInfo?.Version.ToNormalizedString();
         var highestVersionPackageFromSource = PackageResult.PackageFromSources
             .MaxBy(p => p.PackageSearchMetadata.Identity.Version);
-        _latestVersionLabel.Text = highestVersionPackageFromSource.PackageSearchMetadata.Identity.Version.ToNormalizedString();
+        if (PackageResult.InstalledNugetPackageInfo?.Version != highestVersionPackageFromSource.PackageSearchMetadata.Identity.Version)
+        {
+            _latestVersionLabel.Text = highestVersionPackageFromSource.PackageSearchMetadata.Identity.Version.ToNormalizedString();
+        }
         _sourceNamesContainer.QueueFreeChildren();
 
         _ = Task.GodotRun(async () =>
