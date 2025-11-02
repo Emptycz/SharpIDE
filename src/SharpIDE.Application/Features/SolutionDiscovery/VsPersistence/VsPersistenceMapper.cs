@@ -12,7 +12,10 @@ public static class VsPersistenceMapper
 		var intermediateModel = await IntermediateMapper.GetIntermediateModel(solutionFilePath, cancellationToken);
 
 		var solutionModel = new SharpIdeSolutionModel(solutionFilePath, intermediateModel);
-		using var repo = new Repository(solutionModel.DirectoryPath);
+
+		var gitFolderPath = Repository.Discover(solutionFilePath);
+		if (gitFolderPath is null) return solutionModel;
+		using var repo = new Repository(gitFolderPath);
 		var status = repo.RetrieveStatus(new StatusOptions());
 
 		foreach (var entry in status.Where(s => s.State is not FileStatus.Ignored))
