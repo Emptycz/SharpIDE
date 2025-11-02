@@ -28,6 +28,9 @@ public partial class NugetPanel : Control
         _availablePackagesItemList = GetNode<VBoxContainer>("%AvailablePackagesVBoxContainer");
         _nugetPackageDetails = GetNode<NugetPackageDetails>("%NugetPackageDetails");
         _nugetPackageDetails.Visible = false;
+        _installedPackagesVboxContainer.QueueFreeChildren();
+        _implicitlyInstalledPackagesItemList.QueueFreeChildren();
+        _availablePackagesItemList.QueueFreeChildren();
 
         _ = Task.GodotRun(async () =>
         {
@@ -39,7 +42,6 @@ public partial class NugetPanel : Control
                 var project = Solution.AllProjects.First(s => s.Name == "ProjectB");
                 await project.MsBuildEvaluationProjectTask;
                 var installedPackages = await ProjectEvaluation.GetPackageReferencesForProject(project);
-                await this.InvokeAsync(() => _installedPackagesVboxContainer.QueueFreeChildren());
                 var idePackageResult = await _nugetClientService.GetPackagesForInstalledPackages(project.ChildNodeBasePath, installedPackages);
                 var scenes = idePackageResult.Select(s =>
                 {
@@ -52,11 +54,11 @@ public partial class NugetPanel : Control
                 {
                     foreach (var scene in scenes)
                     {
-                        _installedPackagesVboxContainer.AddChild(scene);
+                        var container = scene.PackageResult.IsTransitive!.Value ? _implicitlyInstalledPackagesItemList : _installedPackagesVboxContainer;
+                        container.AddChild(scene);
                     }
                 });
             });
-            await this.InvokeAsync(() => _availablePackagesItemList.QueueFreeChildren());
             var scenes = result.Select(s =>
             {
                 var scene = _packageEntryScene.Instantiate<PackageEntry>();

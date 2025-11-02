@@ -10,7 +10,7 @@ using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 namespace SharpIDE.Application.Features.Nuget;
 
 //public record IdePackageResult(IPackageSearchMetadata PackageSearchMetadata, List<PackageSource> PackageSources);
-public record IdePackageResult(string PackageId, List<IdePackageFromSourceResult> PackageFromSources);
+public record IdePackageResult(string PackageId, List<IdePackageFromSourceResult> PackageFromSources, bool? IsTransitive);
 public record struct IdePackageFromSourceResult(IPackageSearchMetadata PackageSearchMetadata, PackageSource Source);
 public class NugetClientService
 {
@@ -42,7 +42,7 @@ public class NugetClientService
 				log: _nugetLogger,
 				cancellationToken: cancellationToken).ConfigureAwait(false);
 
-			packagesResult.AddRange(results.Select(s => new IdePackageResult(s.Identity.Id, [new IdePackageFromSourceResult(s, source)])));
+			packagesResult.AddRange(results.Select(s => new IdePackageResult(s.Identity.Id, [new IdePackageFromSourceResult(s, source)], null)));
 		}
 
 		// Combine, group, and order by download count
@@ -118,11 +118,11 @@ public class NugetClientService
 		var packagesResult = new List<IdePackageResult>();
 		foreach (var installedPackage in installedPackages)
 		{
-			var idePackageResult = new IdePackageResult(installedPackage.Name, []);
+			var isTransitive = installedPackage.IsTopLevel is false;
+			var idePackageResult = new IdePackageResult(installedPackage.Name, [], isTransitive);
 			var nugetVersionString = installedPackage.ResolvedVersion ?? installedPackage.RequestedVersion;
 			var nugetVersion = NuGetVersion.Parse(nugetVersionString);
 			var packageIdentity = new PackageIdentity(installedPackage.Name, nugetVersion);
-
 
 			foreach (var source in packageSources)
 			{
@@ -139,10 +139,7 @@ public class NugetClientService
 				}
 			}
 
-			if (idePackageResult.PackageFromSources.Count > 0)
-			{
-				packagesResult.Add(idePackageResult);
-			}
+			packagesResult.Add(idePackageResult);
 		}
 		return packagesResult;
 	}
