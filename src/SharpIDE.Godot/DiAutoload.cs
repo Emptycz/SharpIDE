@@ -12,6 +12,7 @@ using SharpIDE.Application.Features.NavigationHistory;
 using SharpIDE.Application.Features.Nuget;
 using SharpIDE.Application.Features.Run;
 using SharpIDE.Application.Features.Search;
+using SharpIDE.Application.Features.Testing;
 
 namespace SharpIDE.Godot;
 
@@ -38,6 +39,7 @@ public partial class DiAutoload : Node
         services.AddScoped<FileChangedService>();
         services.AddScoped<DotnetUserSecretsService>();
         services.AddScoped<NugetClientService>();
+        services.AddScoped<TestRunnerService>();
         services.AddScoped<NugetPackageIconCacheService>();
         services.AddScoped<IdeFileWatcher>();
         services.AddScoped<IdeNavigationHistoryService>();
