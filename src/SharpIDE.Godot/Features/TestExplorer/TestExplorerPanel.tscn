@@ -67,7 +67,7 @@ layout_mode = 2
 [node name="LineEdit" type="LineEdit" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Search for a test"
+placeholder_text = "Filter tests"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer"]
 layout_mode = 2
