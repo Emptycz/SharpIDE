@@ -13,6 +13,7 @@ public partial class LeftSideBar : Panel
     private Button _debugButton = null!;
     private Button _ideDiagnosticsButton = null!;
     private Button _nugetButton = null!;
+    private Button _testExplorerButton = null!;
     
     public override void _Ready()
     {
@@ -23,6 +24,7 @@ public partial class LeftSideBar : Panel
         _debugButton = GetNode<Button>("%DebugButton");
         _ideDiagnosticsButton = GetNode<Button>("%IdeDiagnosticsButton");
         _nugetButton = GetNode<Button>("%NugetButton");
+        _testExplorerButton = GetNode<Button>("%TestExplorerButton");
         
         _problemsButton.Toggled += toggledOn => GodotGlobalEvents.Instance.BottomPanelTabSelected.InvokeParallelFireAndForget(toggledOn ? BottomPanelType.Problems : null);
         _runButton.Toggled += toggledOn => GodotGlobalEvents.Instance.BottomPanelTabSelected.InvokeParallelFireAndForget(toggledOn ? BottomPanelType.Run : null);
@@ -30,6 +32,7 @@ public partial class LeftSideBar : Panel
         _debugButton.Toggled += toggledOn => GodotGlobalEvents.Instance.BottomPanelTabSelected.InvokeParallelFireAndForget(toggledOn ? BottomPanelType.Debug : null);
         _ideDiagnosticsButton.Toggled += toggledOn => GodotGlobalEvents.Instance.BottomPanelTabSelected.InvokeParallelFireAndForget(toggledOn ? BottomPanelType.IdeDiagnostics : null);
         _nugetButton.Toggled += toggledOn => GodotGlobalEvents.Instance.BottomPanelTabSelected.InvokeParallelFireAndForget(toggledOn ? BottomPanelType.Nuget : null);
+        _testExplorerButton.Toggled += toggledOn => GodotGlobalEvents.Instance.BottomPanelTabSelected.InvokeParallelFireAndForget(toggledOn ? BottomPanelType.TestExplorer : null);
         GodotGlobalEvents.Instance.BottomPanelTabExternallySelected.Subscribe(OnBottomPanelTabExternallySelected);
     }
 
@@ -45,6 +48,7 @@ public partial class LeftSideBar : Panel
                 case BottomPanelType.Problems: _problemsButton.ButtonPressed = true; break;
                 case BottomPanelType.IdeDiagnostics: _ideDiagnosticsButton.ButtonPressed = true; break;
                 case BottomPanelType.Nuget: _nugetButton.ButtonPressed = true; break;
+                case BottomPanelType.TestExplorer: _testExplorerButton.ButtonPressed = true; break;
                 default: throw new ArgumentOutOfRangeException(nameof(arg), arg, null);
             }
         });

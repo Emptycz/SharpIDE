@@ -7,5 +7,6 @@ public enum BottomPanelType
     Build,
     Problems,
     IdeDiagnostics,
-    Nuget
+    Nuget,
+    TestExplorer
 }
