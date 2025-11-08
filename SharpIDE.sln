@@ -30,7 +30,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpIDE.RazorAccess", "src
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{DABBDFD2-C631-439C-9ACB-EDDF659D5257}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreServiceDefaults", "tools\AspNetCoreServiceDefaults\AspNetCoreServiceDefaults.csproj", "{C54A5E24-8F16-413F-87F1-BD5E57D2AC1E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GodotServiceDefaults", "tools\GodotServiceDefaults\GodotServiceDefaults.csproj", "{C54A5E24-8F16-413F-87F1-BD5E57D2AC1E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "tools\AppHost\AppHost.csproj", "{CF00AC9C-F796-4C23-8D69-370F494999D7}"
 EndProject
