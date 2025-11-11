@@ -36,8 +36,7 @@ A modern, cross platform & open source IDE for .NET
 <img width="1630" height="895" alt="image" src="https://github.com/user-attachments/assets/b76efd8e-6f57-42a4-b2dc-8fd3e907db83" />
 
 ## Solution Picker
-<img width="842" height="498" alt="image" src="https://github.com/user-attachments/assets/a6c67228-2aeb-4e3f-9ae8-8b91e4d7da68" />
-
+<img width="842" height="498" alt="image" src="https://github.com/user-attachments/assets/044f0ed3-f679-4fbf-9c3c-c6180bfda7ab" />
 
 
 ### Building
