@@ -6,6 +6,7 @@ using ParallelPipelines.Host.Helpers;
 namespace Deploy.Steps;
 
 [DependsOnStep<RestoreAndBuildStep>]
+[DependsOnStep<CreateMacosRelease>]
 public class CreateLinuxRelease : IStep
 {
 	public async Task<BufferedCommandResult?[]?> RunStep(CancellationToken cancellationToken)
@@ -19,7 +20,7 @@ public class CreateLinuxRelease : IStep
 
 		var godotExportResult = await PipelineCliHelper.RunCliCommandAsync(
 			"godot",
-			$"--headless --verbose --export-release Windows --project {godotProjectFile.GetFullNameUnix()}",
+			$"--headless --verbose --export-release Linux --project {godotProjectFile.GetFullNameUnix()}",
 			cancellationToken
 		);
 

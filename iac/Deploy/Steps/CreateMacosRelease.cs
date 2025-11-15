@@ -6,6 +6,7 @@ using ParallelPipelines.Host.Helpers;
 namespace Deploy.Steps;
 
 [DependsOnStep<RestoreAndBuildStep>]
+[DependsOnStep<CreateWindowsRelease>]
 public class CreateMacosRelease : IStep
 {
 	public async Task<BufferedCommandResult?[]?> RunStep(CancellationToken cancellationToken)
@@ -23,8 +24,8 @@ public class CreateMacosRelease : IStep
 			cancellationToken
 		);
 
-		var macosDmgFile = await macosPublishDirectory.GetFile("SharpIDE.dmg");
-		macosDmgFile.MoveTo($"{PipelineFileHelper.GitRootDirectory.FullName}/artifacts/publish-godot/sharpide-osx-universal.dmg");
+		var macosZippedAppFile = await macosPublishDirectory.GetFile("SharpIDE.zip");
+		macosZippedAppFile.MoveTo($"{PipelineFileHelper.GitRootDirectory.FullName}/artifacts/publish-godot/sharpide-osx-universal.zip");
 
 		return [godotExportResult];
 	}
