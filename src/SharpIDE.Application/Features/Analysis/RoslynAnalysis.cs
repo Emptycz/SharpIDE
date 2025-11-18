@@ -1000,6 +1000,15 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 		_workspace.TryApplyChanges(updatedSolution);
 	}
 
+	public async Task<string> GetOutputDllPathForProject(SharpIdeProjectModel projectModel)
+	{
+		await _solutionLoadedTcs.Task;
+		var project = GetProjectForSharpIdeProjectModel(projectModel);
+		var outputPath = project.OutputFilePath;
+		Guard.Against.NullOrWhiteSpace(outputPath);
+		return outputPath;
+	}
+
 	private static Project GetProjectForSharpIdeFile(SharpIdeFile sharpIdeFile)
 	{
 		var sharpIdeProjectModel = ((IChildSharpIdeNode)sharpIdeFile).GetNearestProjectNode()!;

@@ -1,12 +1,15 @@
-﻿using SharpIDE.Application.Features.Evaluation;
+﻿using SharpIDE.Application.Features.Analysis;
+using SharpIDE.Application.Features.Evaluation;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 using SharpIDE.Application.Features.Testing.Client;
 using SharpIDE.Application.Features.Testing.Client.Dtos;
 
 namespace SharpIDE.Application.Features.Testing;
 
-public class TestRunnerService
+public class TestRunnerService(RoslynAnalysis roslynAnalysis)
 {
+	private readonly RoslynAnalysis _roslynAnalysis = roslynAnalysis;
+
 	public async Task<List<TestNode>> DiscoverTests(SharpIdeSolutionModel solutionModel)
 	{
 		await Task.WhenAll(solutionModel.AllProjects.Select(s => s.MsBuildEvaluationProjectTask));
@@ -59,7 +62,7 @@ public class TestRunnerService
 
 	private async Task<TestingPlatformClient> GetInitialisedClientAsync(SharpIdeProjectModel project)
 	{
-		var outputDllPath = ProjectEvaluation.GetOutputDllFullPath(project);
+		var outputDllPath = await _roslynAnalysis.GetOutputDllPathForProject(project);
 		var outputExecutablePath = 0 switch
 		{
 			_ when OperatingSystem.IsWindows() => outputDllPath!.Replace(".dll", ".exe"),

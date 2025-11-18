@@ -32,14 +32,6 @@ public static class ProjectEvaluation
 		project.ReevaluateIfNecessary();
 	}
 
-	public static string? GetOutputDllFullPath(SharpIdeProjectModel projectModel)
-	{
-		var project = _projectCollection.GetLoadedProjects(projectModel.FilePath).Single();
-		var targetPath = project.GetPropertyValue("TargetPath");
-		Guard.Against.NullOrWhiteSpace(targetPath, nameof(targetPath));
-		return targetPath;
-	}
-
 	public static Guid GetOrCreateDotnetUserSecretsId(SharpIdeProjectModel projectModel)
 	{
 		Guard.Against.Null(projectModel, nameof(projectModel));

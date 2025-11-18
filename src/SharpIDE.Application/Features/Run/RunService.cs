@@ -3,6 +3,7 @@ using System.Threading.Channels;
 using Ardalis.GuardClauses;
 using AsyncReadProcess;
 using Microsoft.Extensions.Logging;
+using SharpIDE.Application.Features.Analysis;
 using SharpIDE.Application.Features.Debugging;
 using SharpIDE.Application.Features.Evaluation;
 using SharpIDE.Application.Features.Events;
@@ -11,13 +12,14 @@ using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 
 namespace SharpIDE.Application.Features.Run;
 
-public class RunService(ILogger<RunService> logger)
+public class RunService(ILogger<RunService> logger, RoslynAnalysis roslynAnalysis)
 {
 	private readonly ConcurrentDictionary<SharpIdeProjectModel, SemaphoreSlim> _projectLocks = [];
 	public ConcurrentDictionary<SharpIdeFile, List<Breakpoint>> Breakpoints { get; } = [];
 	private Debugger? _debugger; // TODO: Support multiple debuggers for multiple running projects
 
 	private readonly ILogger<RunService> _logger = logger;
+	private readonly RoslynAnalysis _roslynAnalysis = roslynAnalysis;
 
 	public async Task RunProject(SharpIdeProjectModel project, bool isDebug = false, string? debuggerExecutablePath = null)
 	{
@@ -40,7 +42,7 @@ public class RunService(ILogger<RunService> logger)
 				FileName = "dotnet",
 				WorkingDirectory = Path.GetDirectoryName(project.FilePath),
 				//Arguments = $"run --project \"{project.FilePath}\" --no-restore",
-				Arguments = GetRunArguments(project),
+				Arguments = await GetRunArguments(project),
 				RedirectStandardOutput = true,
 				RedirectStandardError = true,
 				EnvironmentVariables = []
@@ -156,9 +158,9 @@ public class RunService(ILogger<RunService> logger)
 		return await _debugger!.GetInfoAtStopPoint();
 	}
 
-	private string GetRunArguments(SharpIdeProjectModel project)
+	private async Task<string> GetRunArguments(SharpIdeProjectModel project)
 	{
-		var dllFullPath = ProjectEvaluation.GetOutputDllFullPath(project);
+		var dllFullPath = await _roslynAnalysis.GetOutputDllPathForProject(project);
 		if (project.IsBlazorProject)
 		{
 			var blazorDevServerVersion = project.BlazorDevServerVersion;
