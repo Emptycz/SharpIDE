@@ -651,7 +651,7 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 			if (operation is ApplyChangesOperation applyChangesOperation)
 			{
 				var changes = applyChangesOperation.ChangedSolution.GetChanges(updatedSolution);
-				// TODO: What does this actually do
+				// Linked files are e.g. files with the same path, but different projects, ie different TFMs
 				updatedSolution = await applyChangesOperation.ChangedSolution.WithMergedLinkedFileChangesAsync(updatedSolution, changes, cancellationToken).ConfigureAwait(false);
 			}
 			else
