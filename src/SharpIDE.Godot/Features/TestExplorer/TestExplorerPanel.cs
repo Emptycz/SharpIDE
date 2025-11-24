@@ -29,7 +29,8 @@ public partial class TestExplorerPanel : Control
 
     private async Task AsyncReady()
     {
-        await DiscoverTestNodesForSolution(false);
+        // Until this is finished/optimised to handle lots of tests, require manual refresh
+        //await DiscoverTestNodesForSolution(false);
     }
     
     private void OnRefreshButtonPressed()
