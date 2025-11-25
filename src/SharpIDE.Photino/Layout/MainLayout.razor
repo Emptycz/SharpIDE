@@ -185,7 +185,7 @@
 
 		var solutionModel = await VsPersistenceMapper.GetSolutionModel(_solutionFilePath);
 		_solutionModel = solutionModel;
-		RoslynAnalysis.StartSolutionAnalysis(solutionModel);
+		RoslynAnalysis.StartLoadingSolutionInWorkspace(solutionModel);
 	}
 
 	private CancellationTokenSource? _cancellationTokenSource = null!;

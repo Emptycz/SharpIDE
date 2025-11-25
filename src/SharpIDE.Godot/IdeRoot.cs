@@ -159,7 +159,7 @@ public partial class IdeRoot : Control
 			_fileChangedService.SolutionModel = solutionModel;
 			_sharpIdeSolutionModificationService.SolutionModel = solutionModel;
 			Callable.From(_solutionExplorerPanel.BindToSolution).CallDeferred();
-			_roslynAnalysis.StartSolutionAnalysis(solutionModel);
+			_roslynAnalysis.StartLoadingSolutionInWorkspace(solutionModel);
 			_fileWatcher.StartWatching(solutionModel);
 			
 			var previousTabs = Singletons.AppState.RecentSlns.Single(s => s.FilePath == solutionModel.FilePath).IdeSolutionState.OpenTabs;

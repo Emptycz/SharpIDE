@@ -58,14 +58,14 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 
 	public TaskCompletionSource _solutionLoadedTcs = null!;
 	private SharpIdeSolutionModel? _sharpIdeSolutionModel;
-	public void StartSolutionAnalysis(SharpIdeSolutionModel solutionModel)
+	public void StartLoadingSolutionInWorkspace(SharpIdeSolutionModel solutionModel)
 	{
 		_solutionLoadedTcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 		_ = Task.Run(async () =>
 		{
 			try
 			{
-				await Analyse(solutionModel);
+				await LoadSolutionInWorkspace(solutionModel);
 				await UpdateSolutionDiagnostics();
 			}
 			catch (Exception e)
@@ -74,9 +74,9 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 			}
 		});
 	}
-	public async Task Analyse(SharpIdeSolutionModel solutionModel, CancellationToken cancellationToken = default)
+	public async Task LoadSolutionInWorkspace(SharpIdeSolutionModel solutionModel, CancellationToken cancellationToken = default)
 	{
-		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(Analyse)}");
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(LoadSolutionInWorkspace)}");
 		_logger.LogInformation("RoslynAnalysis: Loading solution {SolutionPath}", solutionModel.FilePath);
 		_sharpIdeSolutionModel = solutionModel;
 		var timer = Stopwatch.StartNew();
@@ -148,30 +148,6 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 		// 	var refactoringProviders = CodeRefactoringProviderLoader.LoadCodeRefactoringProviders(assemblies, language);
 		// 	_codeRefactoringProviders.AddRange(refactoringProviders);
 		// }
-
-		// foreach (var project in solution.Projects)
-		// {
-		// 	// foreach (var document in project.Documents)
-		// 	// {
-		// 	// 	var semanticModel = await document.GetSemanticModelAsync();
-		// 	// 	Guard.Against.Null(semanticModel, nameof(semanticModel));
-		// 	// 	var documentDiagnostics = semanticModel.GetDiagnostics().Where(d => d.Severity is not DiagnosticSeverity.Hidden).ToList();
-		// 	// 	foreach (var diagnostic in documentDiagnostics)
-		// 	// 	{
-		// 	// 		var test = await GetCodeFixesAsync(document, diagnostic);
-		// 	// 	}
-		// 	// 	// var syntaxTree = await document.GetSyntaxTreeAsync();
-		// 	// 	// var root = await syntaxTree!.GetRootAsync();
-		// 	// 	// var classifiedSpans = await Classifier.GetClassifiedSpansAsync(document, root.FullSpan);
-		// 	// 	// foreach (var span in classifiedSpans)
-		// 	// 	// {
-		// 	// 	// 	var classifiedSpan = root.GetText().GetSubText(span.TextSpan);
-		// 	// 	// 	Console.WriteLine($"{span.TextSpan}: {span.ClassificationType}");
-		// 	// 	// 	Console.WriteLine(classifiedSpan);
-		// 	// 	// }
-		// 	// }
-		// }
-		_logger.LogInformation("RoslynAnalysis: Analysis completed");
 	}
 
 	/// Callers should call UpdateSolutionDiagnostics after this

@@ -36,10 +36,10 @@ public class RoslynAnalysisTests
 	    var sharpIdeApplicationProject = solutionModel.AllProjects.Single(p => p.Name == "SharpIDE.Application");
 
 		roslynAnalysis._solutionLoadedTcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-	    await roslynAnalysis.Analyse(solutionModel, TestContext.Current.CancellationToken);
+	    await roslynAnalysis.LoadSolutionInWorkspace(solutionModel, TestContext.Current.CancellationToken);
 
 	    // Act
-	    foreach (var i in Enumerable.Range(1, 3))
+	    foreach (var i in Enumerable.Range(0, 3))
 	    {
 		    var timer = Stopwatch.StartNew();
 		    await roslynAnalysis.GetProjectDiagnostics(sharpIdeApplicationProject, TestContext.Current.CancellationToken);
