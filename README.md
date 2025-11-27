@@ -6,6 +6,12 @@
 
 A modern, cross platform & open source IDE for .NET
 
+### Building
+See [CONTRIBUTING.md](CONTRIBUTING.md) for instructions for building and running SharpIDE locally!
+
+### WIP
+SharpIDE is a WIP, and contributions are always welcome! If you encounter an error, please raise an issue! 😊
+
 <img width="1638" height="935" alt="image" src="https://github.com/user-attachments/assets/bce91555-a1f2-43ab-a525-8353b4c7cff2" />
 
 ## Completions
@@ -37,9 +43,3 @@ A modern, cross platform & open source IDE for .NET
 
 ## Solution Picker
 <img width="842" height="498" alt="image" src="https://github.com/user-attachments/assets/044f0ed3-f679-4fbf-9c3c-c6180bfda7ab" />
-
-### Errors
-SharpIDE is still a WIP, so please do not rely on it for production usage. If you encounter an error, please raise an issue! 😊
-
-### Building
-if using a preview .NET SDK, ensure that `DOTNET_ROLL_FORWARD_TO_PRERELEASE` is set to `1` as per https://github.com/godotengine/godot/issues/98334, otherwise it will blow up.
