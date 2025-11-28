@@ -299,7 +299,7 @@ public partial class SolutionExplorerPanel : MarginContainer
 		}
 		var fileItem = tree.CreateItem(parent, newStartingIndex);
 		fileItem.SetText(0, sharpIdeFile.Name);
-		fileItem.SetIcon(0, CsharpFileIcon); 
+		fileItem.SetIcon(0, GetIconForFileExtension(sharpIdeFile.Extension));
 		fileItem.SetCustomColor(0, GetColorForGitStatus(sharpIdeFile.GitStatus));
 		fileItem.SetMetadata(0, new RefCountedContainer<SharpIdeFile>(sharpIdeFile));
 		

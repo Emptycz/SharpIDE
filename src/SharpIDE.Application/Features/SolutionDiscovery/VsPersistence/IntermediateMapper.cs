@@ -14,7 +14,7 @@ public static class IntermediateMapper
 		var serializer = SolutionSerializers.GetSerializerByMoniker(solutionFilePath);
 		Guard.Against.Null(serializer, nameof(serializer));
 		var vsSolution = await serializer.OpenAsync(solutionFilePath, cancellationToken);
-		
+
 		// Remove any projects that aren't csproj, TODO: Instead of removing, display in the solution explorer that the project type isn't supported
 		foreach (var vsSolutionSolutionProject in vsSolution.SolutionProjects.Where(s => s.Extension is not ".csproj").ToList())
 		{
@@ -59,10 +59,15 @@ public static class IntermediateMapper
 			.ToList();
 
 		var filesInFolder = folder.Files?
-			.Select(f => new IntermediateSlnFolderFileModel
+			.Select(f =>
 			{
-				Name = Path.GetFileName(f),
-				FullPath = new FileInfo(Path.Join(Path.GetDirectoryName(solutionFilePath), f)).FullName
+				var fileInfo = new FileInfo(Path.Join(Path.GetDirectoryName(solutionFilePath), f));
+				return new IntermediateSlnFolderFileModel
+				{
+					Name = Path.GetFileName(f),
+					FullPath = fileInfo.FullName,
+					Extension = fileInfo.Extension
+				};
 			})
 			.ToList() ?? [];
 

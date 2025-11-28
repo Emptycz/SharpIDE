@@ -12,6 +12,7 @@ public class SharpIdeFile : ISharpIdeNode, IChildSharpIdeNode, IFileOrFolder
 	public required IExpandableSharpIdeNode Parent { get; set; }
 	public required string Path { get; set; }
 	public required string Name { get; set; }
+	public required string Extension { get; set; }
 	public bool IsRazorFile => Path.EndsWith(".razor", StringComparison.OrdinalIgnoreCase);
 	public bool IsCsprojFile => Path.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
 	public bool IsCshtmlFile => Path.EndsWith(".cshtml", StringComparison.OrdinalIgnoreCase);
@@ -25,10 +26,11 @@ public class SharpIdeFile : ISharpIdeNode, IChildSharpIdeNode, IFileOrFolder
 	public EventWrapper<Task> FileDeleted { get; } = new(() => Task.CompletedTask);
 
 	[SetsRequiredMembers]
-	internal SharpIdeFile(string fullPath, string name, IExpandableSharpIdeNode parent, ConcurrentBag<SharpIdeFile> allFiles)
+	internal SharpIdeFile(string fullPath, string name, string extension, IExpandableSharpIdeNode parent, ConcurrentBag<SharpIdeFile> allFiles)
 	{
 		Path = fullPath;
 		Name = name;
+		Extension = extension;
 		Parent = parent;
 		IsDirty = new ReactiveProperty<bool>(false);
 		SuppressDiskChangeEvents = false;

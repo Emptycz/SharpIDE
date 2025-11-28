@@ -29,4 +29,5 @@ internal class IntermediateSlnFolderFileModel
 {
 	public required string Name { get; set; }
 	public required string FullPath { get; set; }
+	public required string Extension { get; set; }
 }

@@ -143,7 +143,7 @@ public class SharpIdeSolutionModificationService(FileChangedService fileChangedS
 
 	public async Task<SharpIdeFile> CreateFile(IFolderOrProject parentNode, string newFilePath, string fileName, string contents)
 	{
-		var sharpIdeFile = new SharpIdeFile(newFilePath, fileName, parentNode, []);
+		var sharpIdeFile = new SharpIdeFile(newFilePath, fileName, Path.GetExtension(newFilePath), parentNode, []);
 
 		var correctInsertionPosition = GetInsertionPosition(parentNode, sharpIdeFile);
 
