@@ -32,7 +32,7 @@ public partial class SolutionExplorerPanel
             ".html" or ".htm" => _htmlIcon,
             ".css" => _cssIcon,
             ".txt" => _txtIcon,
-            ".props" or ".config" or ".targets" => _genericFileIcon,
+            ".props" or ".config" or ".targets" or ".resx" => _genericFileIcon,
             ".md" => _mdFileIcon,
             ".editorconfig" => _editorConfigFileIcon,
             ".gitignore" => _gitignoreFileIcon,
@@ -42,7 +42,7 @@ public partial class SolutionExplorerPanel
         var overlayTexture = fileExtension switch
         {
             ".props" => _propsFileOverlayIcon,
-            ".config" => _configFileOverlayIcon,
+            ".config" or ".resx" => _configFileOverlayIcon,
             ".targets" => _targetsFileOverlayIcon,
             _ => null
         };
