@@ -111,6 +111,7 @@ public class NugetClientService
 
 	public async Task<List<IdePackageResult>> GetPackagesForInstalledPackages(string directoryPath, List<InstalledPackage> installedPackages, CancellationToken cancellationToken = default)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(NugetClientService)}.{nameof(GetPackagesForInstalledPackages)}");
 		var settings = Settings.LoadDefaultSettings(root: directoryPath);
 		var packageSourceProvider = new PackageSourceProvider(settings);
 		var packageSources = packageSourceProvider.LoadPackageSources().Where(p => p.IsEnabled).ToList();
