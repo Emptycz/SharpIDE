@@ -5,8 +5,8 @@ namespace SharpIDE.Godot;
 public static class InputStringNames
 {
     public static readonly StringName RenameSymbol = nameof(RenameSymbol);
-    public static readonly StringName CodeFixes = "CodeFixes";
-    public static readonly StringName StepOver = "StepOver";
+    public static readonly StringName CodeFixes = nameof(CodeFixes);
+    public static readonly StringName StepOver = nameof(StepOver);
     public static readonly StringName FindInFiles = nameof(FindInFiles);
     public static readonly StringName FindFiles = nameof(FindFiles);
     public static readonly StringName SaveFile = nameof(SaveFile);
@@ -21,4 +21,7 @@ public static class ThemeStringNames
     public static readonly StringName FontSelectedColor = "font_selected_color";
     public static readonly StringName FontHoveredColor = "font_hovered_color";
     public static readonly StringName FontHoveredSelectedColor = "font_hovered_selected_color";
+    
+    public static readonly StringName Panel = "panel";
+    public static readonly StringName Separation = "separation";
 }

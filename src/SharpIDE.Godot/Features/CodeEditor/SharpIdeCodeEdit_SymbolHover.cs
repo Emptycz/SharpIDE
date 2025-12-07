@@ -50,7 +50,7 @@ public partial class SharpIdeCodeEdit
             }
         };
         // To debug location, make type a PopupPanel, and uncomment
-        //symbolNameHoverWindow.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color(1, 0, 0, 0.5f) });
+        //symbolNameHoverWindow.AddThemeStyleboxOverride(ThemeStringNames.Panel, new StyleBoxFlat { BgColor = new Color(1, 0, 0, 0.5f) });
 
         var startSymbolCharRect = GetRectAtLineColumn(linePositionSpan.Value.Start.Line, linePositionSpan.Value.Start.Character + 1);
         var endSymbolCharRect = GetRectAtLineColumn(linePositionSpan.Value.End.Line, linePositionSpan.Value.End.Character);
@@ -122,7 +122,7 @@ public partial class SharpIdeCodeEdit
             ContentMarginRight = 12
         };
         var panel = new PanelContainer();
-        panel.AddThemeStyleboxOverride("panel", styleBox);
+        panel.AddThemeStyleboxOverride(ThemeStringNames.Panel, styleBox);
 
         var symbolInfoNode = roslynSymbol switch
         {
@@ -140,7 +140,7 @@ public partial class SharpIdeCodeEdit
 
         panel.AddChild(symbolInfoNode);
         var vboxContainer = new VBoxContainer();
-        vboxContainer.AddThemeConstantOverride("separation", 0);
+        vboxContainer.AddThemeConstantOverride(ThemeStringNames.Separation, 0);
         vboxContainer.AddChild(panel);
         tooltipWindow.AddChild(vboxContainer);
         tooltipWindow.ChildControlsChanged();
