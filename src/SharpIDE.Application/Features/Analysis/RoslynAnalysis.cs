@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -340,7 +341,8 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 		var compilation = await project.GetCompilationAsync(cancellationToken);
 		Guard.Against.Null(compilation, nameof(compilation));
 
-		var diagnostics = compilation.GetDiagnostics(cancellationToken)
+		var allDiagnostics = compilation.GetDiagnostics(cancellationToken);
+		var diagnostics = allDiagnostics
 			.Where(d => d.Severity is not DiagnosticSeverity.Hidden)
 			.Select(d =>
 			{
@@ -388,6 +390,38 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 		Guard.Against.Null(semanticModel, nameof(semanticModel));
 
 		var diagnostics = semanticModel.GetDiagnostics(cancellationToken: cancellationToken);
+		diagnostics = diagnostics.Where(d => d.Severity is not DiagnosticSeverity.Hidden).ToImmutableArray();
+		var result = diagnostics
+			.Select(d =>
+			{
+				var mappedFileLinePositionSpan = semanticModel.SyntaxTree.GetMappedLineSpan(d.Location.SourceSpan);
+				return new SharpIdeDiagnostic(mappedFileLinePositionSpan.Span, d, mappedFileLinePositionSpan.Path);
+			})
+			.ToImmutableArray();
+		return result;
+	}
+
+	public async Task<ImmutableArray<SharpIdeDiagnostic>> GetDocumentAnalyzerDiagnostics(SharpIdeFile fileModel, CancellationToken cancellationToken = default)
+	{
+		if (fileModel.IsRoslynWorkspaceFile is false) return [];
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetDocumentDiagnostics)}");
+		await _solutionLoadedTcs.Task;
+		if (fileModel.IsRoslynWorkspaceFile is false) return [];
+
+		var document = await GetDocumentForSharpIdeFile(fileModel, cancellationToken);
+		Guard.Against.Null(document, nameof(document));
+
+		var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+		Guard.Against.Null(semanticModel, nameof(semanticModel));
+
+		var projectAnalyzers = document.Project.AnalyzerReferences
+			.OfType<IsolatedAnalyzerFileReference>()
+			.SelectMany(r => r.GetAnalyzers(document.Project.Language))
+			.ToImmutableArray();
+
+		var compilationWithAnalyzers = semanticModel.Compilation.WithAnalyzers(projectAnalyzers);
+
+		var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync(cancellationToken: cancellationToken);
 		diagnostics = diagnostics.Where(d => d.Severity is not DiagnosticSeverity.Hidden).ToImmutableArray();
 		var result = diagnostics
 			.Select(d =>

@@ -1,11 +1,8 @@
 using System.Collections.Immutable;
-using System.Collections.Specialized;
 using Godot;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Completion;
-using Microsoft.CodeAnalysis.Rename.ConflictEngine;
-using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Tags;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.Threading;
@@ -24,7 +21,6 @@ using SharpIDE.Application.Features.Run;
 using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 using SharpIDE.Godot.Features.Problems;
-using SharpIDE.Godot.Features.SymbolLookup;
 using Task = System.Threading.Tasks.Task;
 
 namespace SharpIDE.Godot.Features.CodeEditor;
@@ -47,6 +43,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	private PopupMenu _popupMenu = null!;
 
 	private ImmutableArray<SharpIdeDiagnostic> _fileDiagnostics = [];
+	private ImmutableArray<SharpIdeDiagnostic> _fileAnalyzerDiagnostics = [];
 	private ImmutableArray<SharpIdeDiagnostic> _projectDiagnosticsForFile = [];
 	private ImmutableArray<CodeAction> _currentCodeActionsInPopup = [];
 	private bool _fileChangingSuppressBreakpointToggleEvent;
@@ -117,7 +114,12 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			await this.InvokeAsync(async () => SetSyntaxHighlightingModel(await documentSyntaxHighlighting, await razorSyntaxHighlighting));
 			var documentDiagnostics = await documentDiagnosticsTask;
 			if (newCt.IsCancellationRequested) return;
+			var documentAnalyzerDiagnosticsTask = _roslynAnalysis.GetDocumentAnalyzerDiagnostics(_currentFile, newCt);
 			await this.InvokeAsync(() => SetDiagnostics(documentDiagnostics));
+			var documentAnalyzerDiagnostics = await documentAnalyzerDiagnosticsTask;
+			if (newCt.IsCancellationRequested) return;
+			await this.InvokeAsync(() => SetAnalyzerDiagnostics(documentAnalyzerDiagnostics));
+			if (newCt.IsCancellationRequested) return;
 			if (await hasFocus)
 			{
 				await _roslynAnalysis.UpdateProjectDiagnosticsForFile(_currentFile, newCt);
@@ -289,6 +291,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		var syntaxHighlighting = _roslynAnalysis.GetDocumentSyntaxHighlighting(_currentFile);
 		var razorSyntaxHighlighting = _roslynAnalysis.GetRazorDocumentSyntaxHighlighting(_currentFile);
 		var diagnostics = _roslynAnalysis.GetDocumentDiagnostics(_currentFile);
+		var analyzerDiagnostics = _roslynAnalysis.GetDocumentAnalyzerDiagnostics(_currentFile);
 		await readFileTask;
 		var setTextTask = this.InvokeAsync(async () =>
 		{
@@ -304,6 +307,8 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			await this.InvokeAsync(async () => SetSyntaxHighlightingModel(await syntaxHighlighting, await razorSyntaxHighlighting));
 			await diagnostics;
 			await this.InvokeAsync(async () => SetDiagnostics(await diagnostics));
+			await analyzerDiagnostics;
+			await this.InvokeAsync(async () => SetAnalyzerDiagnostics(await analyzerDiagnostics));
 		});
 	}
 
@@ -350,7 +355,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	public override void _Draw()
 	{
 		//UnderlineRange(_currentLine, _selectionStartCol, _selectionEndCol, new Color(1, 0, 0));
-		foreach (var sharpIdeDiagnostic in _fileDiagnostics.ConcatFast(_projectDiagnosticsForFile))
+		foreach (var sharpIdeDiagnostic in _fileDiagnostics.Concat(_fileAnalyzerDiagnostics).ConcatFast(_projectDiagnosticsForFile))
 		{
 			var line = sharpIdeDiagnostic.Span.Start.Line;
 			var startCol = sharpIdeDiagnostic.Span.Start.Character;
@@ -473,6 +478,13 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	private void SetDiagnostics(ImmutableArray<SharpIdeDiagnostic> diagnostics)
 	{
 		_fileDiagnostics = diagnostics;
+		QueueRedraw();
+	}
+	
+	[RequiresGodotUiThread]
+	private void SetAnalyzerDiagnostics(ImmutableArray<SharpIdeDiagnostic> diagnostics)
+	{
+		_fileAnalyzerDiagnostics = diagnostics;
 		QueueRedraw();
 	}
 	
