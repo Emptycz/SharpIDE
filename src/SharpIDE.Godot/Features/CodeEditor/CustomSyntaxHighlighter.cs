@@ -233,6 +233,7 @@ public partial class CustomHighlighter : SyntaxHighlighter
 
             // Literals & comments
             "string" => CachedColors.LightOrangeBrown,
+            "string - escape character" => CachedColors.LightOrangeBrown,
             "comment" => CachedColors.CommentGreen,
             "number" => CachedColors.NumberGreen,
 
