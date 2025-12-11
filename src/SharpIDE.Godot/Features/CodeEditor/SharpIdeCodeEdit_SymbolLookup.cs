@@ -1,9 +1,7 @@
 ﻿using System.Collections.Immutable;
-using Ardalis.GuardClauses;
 using Godot;
 using Microsoft.CodeAnalysis.Text;
 using SharpIDE.Application.Features.Analysis;
-using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Godot.Features.SymbolLookup;
 
 namespace SharpIDE.Godot.Features.CodeEditor;
