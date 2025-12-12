@@ -14,10 +14,9 @@ using Breakpoint = SharpIDE.Application.Features.Debugging.Breakpoint;
 
 namespace SharpIDE.Application.Features.Run;
 
-public class RunService(ILogger<RunService> logger, RoslynAnalysis roslynAnalysis)
+public partial class RunService(ILogger<RunService> logger, RoslynAnalysis roslynAnalysis)
 {
 	private readonly ConcurrentDictionary<SharpIdeProjectModel, SemaphoreSlim> _projectLocks = [];
-	public ConcurrentDictionary<SharpIdeFile, List<Breakpoint>> Breakpoints { get; } = [];
 	private Debugger? _debugger; // TODO: Support multiple debuggers for multiple running projects
 
 	private readonly ILogger<RunService> _logger = logger;

@@ -157,6 +157,16 @@ public class DebuggingService
 	}
 	// Typically you would do attachRequest, setBreakpointsRequest, configurationDoneRequest, then ResumeRuntime. But netcoredbg blows up on configurationDoneRequest if ResumeRuntime hasn't been called yet.
 
+	public async Task SetBreakpointsForFile(SharpIdeFile file, List<Breakpoint> breakpoints, CancellationToken cancellationToken = default)
+	{
+		var setBreakpointsRequest = new SetBreakpointsRequest
+		{
+			Source = new Source { Path = file.Path },
+			Breakpoints = breakpoints.Select(b => new SourceBreakpoint { Line = b.Line }).ToList()
+		};
+		var breakpointsResponse = _debugProtocolHost.SendRequestSync(setBreakpointsRequest);
+	}
+
 	public async Task StepOver(int threadId, CancellationToken cancellationToken)
 	{
 		await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);

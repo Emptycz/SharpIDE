@@ -176,21 +176,19 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		if (_currentFile is not null) _openTabsFileManager.CloseFile(_currentFile);
 	}
 
-	private void OnBreakpointToggled(long line)
+	private async void OnBreakpointToggled(long line)
 	{
 		if (_fileChangingSuppressBreakpointToggleEvent) return;
 		var lineInt = (int)line;
 		var breakpointAdded = IsLineBreakpointed(lineInt);
 		var lineForDebugger = lineInt + 1; // Godot is 0-indexed, Debugging is 1-indexed
-		var breakpoints = _runService.Breakpoints.GetOrAdd(_currentFile, []); 
 		if (breakpointAdded)
 		{
-			breakpoints.Add(new Breakpoint { Line = lineForDebugger } );
+			await _runService.AddBreakpointForFile(_currentFile, lineForDebugger);
 		}
 		else
 		{
-			var breakpoint = breakpoints.Single(b => b.Line == lineForDebugger);
-			breakpoints.Remove(breakpoint);
+			await _runService.RemoveBreakpointForFile(_currentFile, lineForDebugger);
 		}
 		SetLineColour(lineInt);
 		GD.Print($"Breakpoint {(breakpointAdded ? "added" : "removed")} at line {lineForDebugger}");

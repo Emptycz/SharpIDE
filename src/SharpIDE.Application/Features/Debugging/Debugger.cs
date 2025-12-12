@@ -14,6 +14,7 @@ public class Debugger
 	{
 		await _debuggingService.Attach(ProcessId, debuggerExecutablePath, breakpointsByFile, project, cancellationToken);
 	}
+	public async Task SetBreakpointsForFile(SharpIdeFile file, List<Breakpoint> breakpoints, CancellationToken cancellationToken = default) => await _debuggingService.SetBreakpointsForFile(file, breakpoints, cancellationToken);
 
 	public async Task StepOver(int threadId, CancellationToken cancellationToken = default) => await _debuggingService.StepOver(threadId, cancellationToken);
 	public async Task StepInto(int threadId, CancellationToken cancellationToken = default) => await _debuggingService.StepInto(threadId, cancellationToken);
