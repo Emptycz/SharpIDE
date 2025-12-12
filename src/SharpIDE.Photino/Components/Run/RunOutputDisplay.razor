@@ -17,7 +17,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		Project.ProjectStartedRunning += OnProjectStartedRunning;
+		Project.ProjectStartedRunning.Subscribe(OnProjectStartedRunning);
 		// This event may/will be raised before the component is initialized, so we call OnProjectStartedRunning directly, for the first render.
 		await OnProjectStartedRunning();
 	}
@@ -46,5 +46,5 @@
 		});
 	}
 
-	public void Dispose() => Project.ProjectStartedRunning -= OnProjectStartedRunning;
+	public void Dispose() => Project.ProjectStartedRunning.Unsubscribe(OnProjectStartedRunning);
 }

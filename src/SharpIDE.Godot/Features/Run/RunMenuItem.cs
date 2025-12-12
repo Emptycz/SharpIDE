@@ -24,8 +24,8 @@ public partial class RunMenuItem : HBoxContainer
         _stopButton.Pressed += OnStopButtonPressed;
         _debugButton = GetNode<Button>("DebugButton");
         _debugButton.Pressed += OnDebugButtonPressed;
-        Project.ProjectStartedRunning += OnProjectStartedRunning;
-        Project.ProjectStoppedRunning += OnProjectStoppedRunning;
+        Project.ProjectStartedRunning.Subscribe(OnProjectStartedRunning);
+        Project.ProjectStoppedRunning.Subscribe(OnProjectStoppedRunning);
     }
 
     private async Task OnProjectStoppedRunning()

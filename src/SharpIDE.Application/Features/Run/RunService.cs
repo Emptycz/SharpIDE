@@ -109,7 +109,7 @@ public class RunService(ILogger<RunService> logger, RoslynAnalysis roslynAnalysi
 				GlobalEvents.Instance.StartedRunningProject.InvokeParallelFireAndForget();
 				GlobalEvents.Instance.ProjectStartedRunning.InvokeParallelFireAndForget(project);
 			}
-			project.InvokeProjectStartedRunning();
+			project.ProjectStartedRunning.InvokeParallelFireAndForget();
 			await process.WaitForExitAsync().WaitAsync(project.RunningCancellationTokenSource.Token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
 			if (project.RunningCancellationTokenSource.IsCancellationRequested)
 			{
@@ -131,7 +131,7 @@ public class RunService(ILogger<RunService> logger, RoslynAnalysis roslynAnalysi
 				GlobalEvents.Instance.ProjectStoppedRunning.InvokeParallelFireAndForget(project);
 			}
 
-			project.InvokeProjectStoppedRunning();
+			project.ProjectStoppedRunning.InvokeParallelFireAndForget();
 
 			_logger.LogInformation("Process for project {ProjectName} has exited", project.Name);
 		}

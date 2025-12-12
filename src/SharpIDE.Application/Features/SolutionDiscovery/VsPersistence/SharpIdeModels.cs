@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using ObservableCollections;
 using SharpIDE.Application.Features.Analysis;
 using SharpIDE.Application.Features.Evaluation;
+using SharpIDE.Application.Features.Events;
 using Project = Microsoft.Build.Evaluation.Project;
 
 namespace SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
@@ -133,11 +134,9 @@ public class SharpIdeProjectModel : ISharpIdeNode, IExpandableSharpIdeNode, IChi
 	public bool OpenInRunPanel { get; set; }
 	public Channel<byte[]>? RunningOutputChannel { get; set; }
 
-	public event Func<Task> ProjectStartedRunning = () => Task.CompletedTask;
-	public void InvokeProjectStartedRunning() => ProjectStartedRunning.Invoke();
+	public EventWrapper<Task> ProjectStartedRunning { get; } = new(() => Task.CompletedTask);
+	public EventWrapper<Task> ProjectStoppedRunning { get; } = new(() => Task.CompletedTask);
 
-	public event Func<Task> ProjectStoppedRunning = () => Task.CompletedTask;
-	public void InvokeProjectStoppedRunning() => ProjectStoppedRunning.Invoke();
 
 	public ObservableHashSet<SharpIdeDiagnostic> Diagnostics { get; internal set; } = [];
 }
