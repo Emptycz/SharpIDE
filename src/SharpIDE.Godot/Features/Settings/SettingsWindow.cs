@@ -5,17 +5,26 @@ namespace SharpIDE.Godot.Features.Settings;
 public partial class SettingsWindow : Window
 {
     private SpinBox _uiScaleSpinBox = null!;
+    private LineEdit _debuggerFilePathLineEdit = null!;
     public override void _Ready()
     {
         CloseRequested += Hide;
         _uiScaleSpinBox = GetNode<SpinBox>("%UiScaleSpinBox");
+        _debuggerFilePathLineEdit = GetNode<LineEdit>("%DebuggerFilePathLineEdit");
         _uiScaleSpinBox.ValueChanged += OnUiScaleSpinBoxValueChanged;
+        _debuggerFilePathLineEdit.TextChanged += DebuggerFilePathChanged;
         AboutToPopup += OnAboutToPopup;
+    }
+
+    private void DebuggerFilePathChanged(string newText)
+    {
+        Singletons.AppState.IdeSettings.DebuggerExecutablePath = newText;
     }
 
     private void OnAboutToPopup()
     {
         _uiScaleSpinBox.Value = Singletons.AppState.IdeSettings.UiScale;
+        _debuggerFilePathLineEdit.Text = Singletons.AppState.IdeSettings.DebuggerExecutablePath;
     }
 
     private void OnUiScaleSpinBoxValueChanged(double value)
