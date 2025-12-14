@@ -242,6 +242,13 @@ public class DebuggingService
 		return allVariables;
 	}
 
+	public async Task<List<Variable>> GetVariablesForVariablesReference(int variablesReference)
+	{
+		var variablesRequest = new VariablesRequest { VariablesReference = variablesReference };
+		var variablesResponse = _debugProtocolHost.SendRequestSync(variablesRequest);
+		return variablesResponse.Variables;
+	}
+
 	// netcoredbg does not provide the stack frame name in this format, so don't use this if using netcoredbg
 	private static ManagedStackFrameInfo? ParseStackFrameName(string name)
 	{

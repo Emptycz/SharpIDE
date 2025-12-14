@@ -1,5 +1,6 @@
 using Ardalis.GuardClauses;
 using Godot;
+using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
 using SharpIDE.Application.Features.Debugging;
 using SharpIDE.Application.Features.Events;
 using SharpIDE.Application.Features.Run;
@@ -28,7 +29,36 @@ public partial class ThreadsVariablesSubTab : Control
 		GlobalEvents.Instance.DebuggerExecutionStopped.Subscribe(OnDebuggerExecutionStopped);
 		_threadsTree.ItemSelected += OnThreadSelected;
 		_stackFramesTree.ItemSelected += OnStackFrameSelected;
+		_variablesTree.ItemCollapsed += OnVariablesItemExpandedOrCollapsed;
 		Project.ProjectStoppedRunning.Subscribe(ProjectStoppedRunning);
+	}
+
+	private void OnVariablesItemExpandedOrCollapsed(TreeItem item)
+	{
+		var wasExpanded = item.IsCollapsed() is false;
+		var metadata = item.GetMetadata(0).AsVector2I();
+		var alreadyRetrievedChildren = metadata.X == 1;
+		if (wasExpanded && alreadyRetrievedChildren is false)
+		{
+			// retrieve children
+			var variablesReferenceId = metadata.Y;
+			_ = Task.GodotRun(async () =>
+			{
+				var variables = await _runService.GetVariablesForVariablesReference(variablesReferenceId);
+				await this.InvokeAsync(() =>
+				{
+					var firstChild = item.GetFirstChild();
+					Guard.Against.Null(firstChild);
+					item.RemoveChild(firstChild);
+					foreach (var variable in variables)
+					{
+						AddVariableToTreeItem(item, variable);
+					}
+					// mark as retrieved
+					item.SetMetadata(0, new Vector2I(1, variablesReferenceId));
+				});
+			});
+		}
 	}
 
 	public override void _ExitTree()
@@ -90,10 +120,22 @@ public partial class ThreadsVariablesSubTab : Control
 			var root = _variablesTree.CreateItem();
 			foreach (var variable in variables)
 			{
-				var variableItem = _variablesTree.CreateItem(root);
-				variableItem.SetText(0, $$"""{{variable.Name}} = {{{variable.Type}}} {{variable.Value}}""");
+				AddVariableToTreeItem(root, variable);
 			}
 		});
+	}
+	
+	private void AddVariableToTreeItem(TreeItem parentItem, Variable variable)
+	{
+		var variableItem = _variablesTree.CreateItem(parentItem);
+		variableItem.SetText(0, $$"""{{variable.Name}} = {{{variable.Type}}} {{variable.Value}}""");
+		variableItem.SetMetadata(0, new Vector2I(0, variable.VariablesReference));
+		if (variable.VariablesReference is not 0)
+		{
+			var placeHolderItem = _variablesTree.CreateItem(variableItem);
+			placeHolderItem.SetText(0, "Loading...");
+			variableItem.Collapsed = true;
+		}
 	}
 
 

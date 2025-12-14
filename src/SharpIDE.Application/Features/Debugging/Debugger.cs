@@ -23,4 +23,5 @@ public class Debugger
 	public async Task<List<ThreadModel>> GetThreadsAtStopPoint() => await _debuggingService.GetThreadsAtStopPoint();
 	public async Task<List<StackFrameModel>> GetStackFramesForThread(int threadId) => await _debuggingService.GetStackFramesForThread(threadId);
 	public async Task<List<Variable>> GetVariablesForStackFrame(int frameId) => await _debuggingService.GetVariablesForStackFrame(frameId);
+	public async Task<List<Variable>> GetVariablesForVariablesReference(int variablesReferenceId) => await _debuggingService.GetVariablesForVariablesReference(variablesReferenceId);
 }
