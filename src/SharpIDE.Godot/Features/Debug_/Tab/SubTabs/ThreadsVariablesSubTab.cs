@@ -11,6 +11,10 @@ namespace SharpIDE.Godot.Features.Debug_.Tab.SubTabs;
 public partial class ThreadsVariablesSubTab : Control
 {
 	private PackedScene _threadListItemScene = GD.Load<PackedScene>("res://Features/Debug_/Tab/SubTabs/ThreadListItem.tscn");
+
+	private readonly Texture2D _fieldIcon = ResourceLoader.Load<Texture2D>("uid://c4y7d5m4upfju");
+	private readonly Texture2D _propertyIcon = ResourceLoader.Load<Texture2D>("uid://y5pwrwwrjqmc");
+	private readonly Texture2D _staticMembersIcon = ResourceLoader.Load<Texture2D>("uid://dudntp20myuxb");
 	
 	private Tree _threadsTree = null!;
 	private Tree _stackFramesTree = null!;
@@ -131,6 +135,19 @@ public partial class ThreadsVariablesSubTab : Control
 	{
 		var variableItem = _variablesTree.CreateItem(parentItem);
 		variableItem.SetText(0, $$"""{{variable.Name}} = {{{variable.Type}}} {{variable.Value}}""");
+		var icon = variable.PresentationHint?.Kind switch
+		{
+			VariablePresentationHint.KindValue.Data => _fieldIcon,
+			VariablePresentationHint.KindValue.Property => _propertyIcon,
+			VariablePresentationHint.KindValue.Class => _staticMembersIcon,
+			_ => null
+		};
+		if (icon is null)
+		{
+			// unlike sharpdbg and presumably vsdbg, netcoredbg does not set PresentationHint for variables
+			if (variable.Name == "Static members") icon = _staticMembersIcon;
+		}
+		variableItem.SetIcon(0, icon);
 		variableItem.SetMetadata(0, new Vector2I(0, variable.VariablesReference));
 		if (variable.VariablesReference is not 0)
 		{
