@@ -31,11 +31,6 @@ public partial class SharpIdeCodeEdit : CodeEdit
 {
 	[Signal]
 	public delegate void CodeFixesRequestedEventHandler();
-
-	private int _currentLine;
-	private int _currentCol;
-	private int _selectionStartCol;
-	private int _selectionEndCol;
 	
 	public SharpIdeSolutionModel? Solution { get; set; }
 	public SharpIdeFile SharpIdeFile => _currentFile;
@@ -183,7 +178,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	private void OnFocusEntered()
 	{
 		// The selected tab changed, report the caret position
-		_editorCaretPositionService.CaretPosition = GetCaretPosition();
+		_editorCaretPositionService.CaretPosition = GetCaretPosition(startAt1: true);
 	}
 
 	private async void OnBreakpointToggled(long line)
@@ -214,11 +209,8 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	
 	private void OnCaretChanged()
 	{
-		_selectionStartCol = GetSelectionFromColumn();
-		_selectionEndCol = GetSelectionToColumn();
-		_currentLine = GetCaretLine();
-		_currentCol = GetCaretColumn();
-		// GD.Print($"Selection changed to line {_currentLine}, start {_selectionStartCol}, end {_selectionEndCol}");
+		var caretPosition = GetCaretPosition(startAt1: true);
+		_editorCaretPositionService.CaretPosition = caretPosition;
 	}
 
 	private void OnTextChanged()
@@ -612,10 +604,15 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		});
 	}
 	
-	private (int line, int col) GetCaretPosition()
+	private (int line, int col) GetCaretPosition(bool startAt1 = false)
 	{
 		var caretColumn = GetCaretColumn();
 		var caretLine = GetCaretLine();
+		if (startAt1)
+		{
+			caretColumn += 1;
+			caretLine += 1;
+		}
 		return (caretLine, caretColumn);
 	}
 }
