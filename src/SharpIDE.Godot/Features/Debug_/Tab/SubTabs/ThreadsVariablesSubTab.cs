@@ -57,12 +57,14 @@ public partial class ThreadsVariablesSubTab : Control
 	    var textYPos = rect.Position.Y + (rect.Size.Y + fontSize) / 2 - 2;
 	    
 	    _variablesTree.DrawString(font, new Vector2(currentX, textYPos), variable.Name, HorizontalAlignment.Left, -1, fontSize, Colors.White);
-        
-        //_textLine.AddString(variable.Name, font, fontSize);
-        //_textLine.Draw(variablesTreeCanvasRid, new Vector2(rect.Position.X, rect.Position.Y), Colors.White);
-        //_textLine.Clear();
-        //test.Draw(_variablesTree.GetCanvasItem(), new Vector2(rect.Position.X, rect.Position.Y), Colors.White);
-        //richTextLabel.Draw(_variablesTree.GetCanvasItem(), new Vector2(currentX, textYPos - textLine.GetLineAscent()), textColor);
+	    var variableNameDrawnSize = font.GetStringSize(variable.Name, HorizontalAlignment.Left, -1, fontSize).X;
+	    currentX += variableNameDrawnSize;
+	    _variablesTree.DrawString(font, new Vector2(currentX, textYPos), " = ", HorizontalAlignment.Left, -1, fontSize, Colors.White);
+        currentX += font.GetStringSize(" = ", HorizontalAlignment.Left, -1, fontSize).X;
+        _variablesTree.DrawString(font, new Vector2(currentX, textYPos), $"{{{variable.Type}}} ", HorizontalAlignment.Left, -1, fontSize, Colors.Gray);
+		var variableTypeDrawnSize = font.GetStringSize($"{{{variable.Type}}} ", HorizontalAlignment.Left, -1, fontSize).X;
+		currentX += variableTypeDrawnSize;
+		_variablesTree.DrawString(font, new Vector2(currentX, textYPos), variable.Value, HorizontalAlignment.Left, -1, fontSize, Colors.White);
     }
 
 	private void OnVariablesItemExpandedOrCollapsed(TreeItem item)
