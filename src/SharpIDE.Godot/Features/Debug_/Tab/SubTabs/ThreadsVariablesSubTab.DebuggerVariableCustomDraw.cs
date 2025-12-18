@@ -29,6 +29,15 @@ public partial class ThreadsVariablesSubTab
             else icon = _fieldIcon;
         }
 
+        var variableValueDisplayColour = variable switch
+        {
+            { Value: "null" } => CachedColors.KeywordBlue,
+            { Value: "true" or "false" } => CachedColors.KeywordBlue,
+            { Type: "string" or "char" } => CachedColors.LightOrangeBrown,
+            { Type: "byte" or "sbyte" or "short" or "ushort" or "int" or "uint" or "long" or "ulong" or "nint" or "nuint" or "float" or "double" or "decimal" } => CachedColors.NumberGreen,
+            _ => VariableWhiteColor
+        };
+
         var font = _variablesTree.GetThemeFont(ThemeStringNames.Font);
         var fontSize = _variablesTree.GetThemeFontSize(ThemeStringNames.FontSize);
         const float padding = 4.0f;
@@ -56,6 +65,6 @@ public partial class ThreadsVariablesSubTab
             currentX += variableTypeDrawnSize + padding;
         }
         var variableValueDisplayString = isObjectType ? variable.Type : variable.Value;
-        _variablesTree.DrawString(font, new Vector2(currentX, textYPos), variableValueDisplayString, HorizontalAlignment.Left, -1, fontSize, VariableWhiteColor);
+        _variablesTree.DrawString(font, new Vector2(currentX, textYPos), variableValueDisplayString, HorizontalAlignment.Left, -1, fontSize, variableValueDisplayColour);
     }
 }
