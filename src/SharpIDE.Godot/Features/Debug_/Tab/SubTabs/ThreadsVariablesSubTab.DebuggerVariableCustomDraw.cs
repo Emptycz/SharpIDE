@@ -34,6 +34,7 @@ public partial class ThreadsVariablesSubTab
 
         var variableValueDisplayColour = variable switch
         {
+            _ when variable.PresentationHint?.Attributes is { } attrs && (attrs & VariablePresentationHint.AttributesValue.FailedEvaluation) != 0 => CachedColors.ErrorRed,
             { Value: "null" } => CachedColors.KeywordBlue,
             { Value: "true" or "false" } => CachedColors.KeywordBlue,
             { Type: "string" or "char" } => CachedColors.LightOrangeBrown,

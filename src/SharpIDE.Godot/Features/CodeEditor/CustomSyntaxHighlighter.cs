@@ -304,6 +304,7 @@ public static class CachedColors
     public static readonly Color VariableBlue = new("9cdcfe");
     public static readonly Color Gray = new("a9a9a9");
     public static readonly Color Pink = new("c586c0");
+    public static readonly Color ErrorRed = new("da5b5a");
     
     public static readonly Color RazorComponentGreen = new("0b7f7f");
     public static readonly Color RazorMetaCodePurple = new("a699e6");
