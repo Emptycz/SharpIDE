@@ -25,6 +25,7 @@ public class DebuggingService
 		{
 			throw new ArgumentNullException(nameof(debuggerExecutablePath), "Debugger executable path cannot be null or empty.");
 		}
+		var isNetCoreDbg = Path.GetFileNameWithoutExtension(debuggerExecutablePath).Equals("netcoredbg", StringComparison.OrdinalIgnoreCase);
 
 		var process = new Process
 		{
@@ -159,11 +160,22 @@ public class DebuggingService
 			var breakpointsResponse = debugProtocolHost.SendRequestSync(setBreakpointsRequest);
 		}
 
-		new DiagnosticsClient(debuggeeProcessId).ResumeRuntime();
-		var configurationDoneRequest = new ConfigurationDoneRequest();
-		debugProtocolHost.SendRequestSync(configurationDoneRequest);
+		// netcoredbg has (a bug?) differing behaviour here compared to sharpdbg, where ConfigurationDone will never return if the runtime is paused at startup
+		// so if using netcoredbg, we must ResumeRuntime first
+		// Note that this means breakpoints on e.g. the first line of Main may be missed. It would be ideal for netcoredbg to fix this behaviour.
+		if (isNetCoreDbg)
+		{
+			new DiagnosticsClient(debuggeeProcessId).ResumeRuntime();
+			var configurationDoneRequest = new ConfigurationDoneRequest();
+			debugProtocolHost.SendRequestSync(configurationDoneRequest);
+		}
+		else
+		{
+			var configurationDoneRequest = new ConfigurationDoneRequest();
+			debugProtocolHost.SendRequestSync(configurationDoneRequest);
+			new DiagnosticsClient(debuggeeProcessId).ResumeRuntime();
+		}
 	}
-	// Typically you would do attachRequest, setBreakpointsRequest, configurationDoneRequest, then ResumeRuntime. But netcoredbg blows up on configurationDoneRequest if ResumeRuntime hasn't been called yet.
 
 	public async Task SetBreakpointsForFile(SharpIdeFile file, List<Breakpoint> breakpoints, CancellationToken cancellationToken = default)
 	{
