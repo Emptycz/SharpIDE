@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
+using SharpIDE.Application.Features.Run;
 using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 
@@ -10,9 +11,9 @@ public class Debugger
 	public required SharpIdeProjectModel Project { get; init; }
 	public required int ProcessId { get; init; }
 	private DebuggingService _debuggingService = new DebuggingService();
-	public async Task Attach(string? debuggerExecutablePath, Dictionary<SharpIdeFile, List<Breakpoint>> breakpointsByFile, SharpIdeProjectModel project, CancellationToken cancellationToken)
+	public async Task Attach(DebuggerExecutableInfo? debuggerExecutableInfo, Dictionary<SharpIdeFile, List<Breakpoint>> breakpointsByFile, SharpIdeProjectModel project, CancellationToken cancellationToken)
 	{
-		await _debuggingService.Attach(ProcessId, debuggerExecutablePath, breakpointsByFile, project, cancellationToken);
+		await _debuggingService.Attach(ProcessId, debuggerExecutableInfo, breakpointsByFile, project, cancellationToken);
 	}
 	public async Task SetBreakpointsForFile(SharpIdeFile file, List<Breakpoint> breakpoints, CancellationToken cancellationToken = default) => await _debuggingService.SetBreakpointsForFile(file, breakpoints, cancellationToken);
 

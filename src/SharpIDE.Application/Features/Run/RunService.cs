@@ -22,7 +22,7 @@ public partial class RunService(ILogger<RunService> logger, RoslynAnalysis rosly
 	private readonly ILogger<RunService> _logger = logger;
 	private readonly RoslynAnalysis _roslynAnalysis = roslynAnalysis;
 
-	public async Task RunProject(SharpIdeProjectModel project, bool isDebug = false, string? debuggerExecutablePath = null)
+	public async Task RunProject(SharpIdeProjectModel project, bool isDebug = false, DebuggerExecutableInfo? debuggerExecutableInfo = null)
 	{
 		Guard.Against.Null(project, nameof(project));
 		Guard.Against.NullOrWhiteSpace(project.FilePath, nameof(project.FilePath), "Project file path cannot be null or empty.");
@@ -93,7 +93,7 @@ public partial class RunService(ILogger<RunService> logger, RoslynAnalysis rosly
 				// Attach debugger (which internally uses a DiagnosticClient to resume startup)
 				var debugger = new Debugger { Project = project, ProcessId = process.ProcessId };
 				_debugger = debugger;
-				await debugger.Attach(debuggerExecutablePath, Breakpoints.ToDictionary(), project, project.RunningCancellationTokenSource.Token).ConfigureAwait(false);
+				await debugger.Attach(debuggerExecutableInfo, Breakpoints.ToDictionary(), project, project.RunningCancellationTokenSource.Token).ConfigureAwait(false);
 			}
 
 			project.Running = true;

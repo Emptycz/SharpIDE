@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
 using Newtonsoft.Json.Linq;
 using SharpIDE.Application.Features.Debugging.Signing;
 using SharpIDE.Application.Features.Events;
+using SharpIDE.Application.Features.Run;
 using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 
@@ -16,33 +17,14 @@ namespace SharpIDE.Application.Features.Debugging;
 public class DebuggingService
 {
 	private DebugProtocolHost _debugProtocolHost = null!;
-	public async Task Attach(int debuggeeProcessId, string? debuggerExecutablePath, Dictionary<SharpIdeFile, List<Breakpoint>> breakpointsByFile, SharpIdeProjectModel project, CancellationToken cancellationToken = default)
+	public async Task Attach(int debuggeeProcessId, DebuggerExecutableInfo? debuggerExecutableInfo, Dictionary<SharpIdeFile, List<Breakpoint>> breakpointsByFile, SharpIdeProjectModel project, CancellationToken cancellationToken = default)
 	{
 		Guard.Against.NegativeOrZero(debuggeeProcessId, nameof(debuggeeProcessId), "Process ID must be a positive integer.");
 		await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
 
-		if (string.IsNullOrWhiteSpace(debuggerExecutablePath))
-		{
-			throw new ArgumentNullException(nameof(debuggerExecutablePath), "Debugger executable path cannot be null or empty.");
-		}
-		var isNetCoreDbg = Path.GetFileNameWithoutExtension(debuggerExecutablePath).Equals("netcoredbg", StringComparison.OrdinalIgnoreCase);
+		var (inputStream, outputStream, isNetCoreDbg) = DebuggerProcessStreamHelper.NewDebuggerProcessStreamsForInfo(debuggerExecutableInfo);
 
-		var process = new Process
-		{
-			StartInfo = new ProcessStartInfo
-			{
-				//FileName = @"C:\Users\Matthew\Downloads\netcoredbg-win64\netcoredbg\netcoredbg.exe",
-				FileName = debuggerExecutablePath,
-				Arguments = "--interpreter=vscode",
-				RedirectStandardInput = true,
-				RedirectStandardOutput = true,
-				UseShellExecute = false,
-				CreateNoWindow = true
-			}
-		};
-		process.Start();
-
-		var debugProtocolHost = new DebugProtocolHost(process.StandardInput.BaseStream, process.StandardOutput.BaseStream, false);
+		var debugProtocolHost = new DebugProtocolHost(inputStream, outputStream, false);
 		var initializedEventTcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 		_debugProtocolHost = debugProtocolHost;
 		debugProtocolHost.LogMessage += (sender, args) =>
